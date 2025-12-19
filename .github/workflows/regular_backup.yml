@@ -1,4 +1,4 @@
-name: Scheduled Backup for new articles to Backblaze
+name: Scheduled Backup to B2
 
 on:
   schedule:
