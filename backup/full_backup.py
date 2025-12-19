@@ -5,10 +5,6 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify as md
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 
-# --- PFAD-LOGIK ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-POSTED_FILE_PATH = os.path.join(BASE_DIR, 'posted.txt')
-
 # --- KONFIGURATION ---
 B2_KEY_ID = os.getenv('B2_KEY_ID')
 B2_APPLICATION_KEY = os.getenv('B2_APPLICATION_KEY')
@@ -28,23 +24,22 @@ def slugify(text):
     return re.sub(r'[\W_]+', '-', text.lower()).strip('-')
 
 def run_full_backup():
-    print("🚀 Starte Sitemap-Backup (Initial)...")
+    print("🚀 Starte MANUELLES FULL BACKUP (ignoriert posted.txt)...")
     bucket = get_b2_bucket()
     
     # Sitemap laden
-    r = requests.get(SITEMAP_URL)
-    sitemap_soup = BeautifulSoup(r.content, 'xml')
-    urls = [loc.text for loc in sitemap_soup.find_all('loc')]
-    
-    if not os.path.exists(POSTED_FILE_PATH):
-        open(POSTED_FILE_PATH, 'w').close()
-
-    with open(POSTED_FILE_PATH, 'r') as f:
-        already_done = f.read().splitlines()
+    try:
+        r = requests.get(SITEMAP_URL, timeout=15)
+        r.raise_for_status()
+        sitemap_soup = BeautifulSoup(r.content, 'xml')
+        urls = [loc.text for loc in sitemap_soup.find_all('loc')]
+    except Exception as e:
+        print(f"❌ Fehler beim Laden der Sitemap: {e}")
+        return
 
     count = 0
     for url in urls:
-        if url in EXCLUDE or url in already_done:
+        if url in EXCLUDE:
             continue
         
         try:
@@ -54,34 +49,38 @@ def run_full_backup():
             
             title = soup.find('h1').text if soup.find('h1') else url.split('/')[-2]
             title_slug = slugify(title)
+            
+            # Bearblog spezifischer Content-Bereich
             content_area = soup.find('main') or soup.find('article')
+            if not content_area: 
+                print(f"   ⚠️ Kein Content-Bereich gefunden für {url}")
+                continue
 
-            if not content_area: continue
-
-            # Bilder sichern
+            # 1. Bilder sichern
             for i, img in enumerate(content_area.find_all('img')):
                 img_url = img.get('src')
                 if not img_url: continue
                 if img_url.startswith('/'): img_url = "https://fischr.org" + img_url
+                
                 try:
                     img_data = requests.get(img_url, timeout=10).content
                     ext = img_url.split('.')[-1].split('?')[0][:3]
+                    # Pfad: backups/titel/images/img_0.jpg
                     bucket.upload_bytes(img_data, f"backups/{title_slug}/images/img_{i}.{ext}")
-                except: pass
+                except: 
+                    print(f"   ⚠️ Bild-Download fehlgeschlagen: {img_url}")
 
-            # Markdown sichern
+            # 2. Markdown sichern
             markdown_text = f"# {title}\n\nURL: {url}\n\n" + md(str(content_area))
             bucket.upload_bytes(markdown_text.encode('utf-8'), f"backups/{title_slug}/article.md")
             
-            # Fortschritt speichern
-            with open(POSTED_FILE_PATH, 'a') as f:
-                f.write(url + '\n')
             count += 1
+            print(f"   ✅ {title_slug} gesichert.")
             
         except Exception as e:
             print(f"❌ Fehler bei {url}: {e}")
 
-    print(f"✨ Fertig. {count} Artikel gesichert.")
+    print(f"\n✨ FULL BACKUP abgeschlossen. {count} Artikel verarbeitet.")
 
 if __name__ == "__main__":
     run_full_backup()
