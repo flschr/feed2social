@@ -1,0 +1,5 @@
+feedparser
+atproto
+Mastodon.py
+requests
+beautifulsoup4

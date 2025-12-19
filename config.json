@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Blog - Fotos",
+    "url": "https://fischr.org/feed/",
+    "include": ["fotos"],
+    "template": "📸 Neues Foto aus dem Blog: {title} \n\n{link}",
+    "targets": ["bluesky"]
+  },
+  {
+    "name": "Blog - Alles andere",
+    "url": "https://fischr.org/feed/",
+    "exclude": ["fotos", "til"],
+    "template": "📝 Neuer Blogpost: {title} \n\n{link}",
+    "targets": ["bluesky", "mastodon"]
+  },
+  {
+    "name": "Mein Blog - TIL",
+    "url": "https://fischr.org/feed/",
+    "include": ["til"],
+    "template": "💡 Heute gelernt: {title} \n\n{link}",
+    "targets": ["bluesky"]
+  },
+  {
+    "name": "Tagesschau",
+    "url": "https://www.tagesschau.de/infosilla/archive/index.html",
+    "include": ["Eilmeldung"],
+    "template": "🚨 BREAKING: {title} \n\n{link}",
+    "targets": ["mastodon"]
+  }
+]
