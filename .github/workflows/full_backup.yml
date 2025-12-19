@@ -1,4 +1,4 @@
-name: Initial Backup to B2
+name: Full Backup to Backblaze
 
 on: 
   workflow_dispatch: 

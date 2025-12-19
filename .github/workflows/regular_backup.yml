@@ -1,4 +1,4 @@
-name: Scheduled RSS Backup to B2
+name: Scheduled Backup for new articles to Backblaze
 
 on:
   schedule:
