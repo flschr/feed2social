@@ -90,7 +90,7 @@ def main():
     headers = {"Cookie": COOKIE}
 
     try:
-        response = requests.get(CSV_URL, headers=headers, timeout=15)
+        response = requests.get(CSV_URL, headers=headers, timeout=15, allow_redirects=False)
 
         if response.status_code == 403:
             print("\n" + "=" * 70, flush=True)
@@ -124,6 +124,33 @@ def main():
         elif response.status_code != 200:
             print(f"\n❌ ERROR: HTTP {response.status_code}", flush=True)
             print(f"Response: {response.text[:200]}", flush=True)
+            return
+
+        # Check if we got HTML instead of CSV (login page)
+        content_type = response.headers.get('Content-Type', '')
+        response_preview = response.text[:200].lower()
+
+        if 'html' in content_type or '<!doctype' in response_preview or '<html' in response_preview:
+            print("\n" + "=" * 70, flush=True)
+            print("❌ ERROR: RECEIVED HTML INSTEAD OF CSV", flush=True)
+            print("=" * 70, flush=True)
+            print("", flush=True)
+            print("🔑 The server returned an HTML page (likely login) instead of CSV!", flush=True)
+            print("   Your session cookie is invalid or expired.", flush=True)
+            print("", flush=True)
+            print(f"Content-Type received: {content_type}", flush=True)
+            print(f"Response preview: {response.text[:300]}", flush=True)
+            print("", flush=True)
+            print("To fix this:", flush=True)
+            print("  1. Go to https://bearblog.dev/fischr/dashboard/", flush=True)
+            print("  2. Press F12 → Application/Storage → Cookies", flush=True)
+            print("  3. Copy the FULL value of 'sessionid'", flush=True)
+            print("  4. Update the GitHub Secret 'BEAR_COOKIE':", flush=True)
+            print("     - Go to: Settings → Secrets and variables → Actions", flush=True)
+            print("     - Edit 'BEAR_COOKIE'", flush=True)
+            print("     - Value: sessionid=YOUR_NEW_SESSION_ID", flush=True)
+            print("", flush=True)
+            print("=" * 70, flush=True)
             return
 
         with open("temp_export.csv", "wb") as f:
