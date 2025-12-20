@@ -135,9 +135,30 @@ def main():
         print(f"❌ Error fetching CSV: {e}", flush=True)
         return
 
-    # Process CSV
-    df = pd.read_csv("temp_export.csv")
-    print(f"📊 Found {len(df)} articles in CSV\n", flush=True)
+    # Process CSV with robust parsing options
+    try:
+        df = pd.read_csv(
+            "temp_export.csv",
+            encoding='utf-8',
+            on_bad_lines='warn',  # Warn about bad lines instead of failing
+            engine='python',  # Use Python engine for more flexible parsing
+            quoting=1,  # QUOTE_ALL - expect all fields to be quoted
+            escapechar='\\',  # Handle escaped characters
+            doublequote=True  # Handle double quotes
+        )
+        print(f"📊 Found {len(df)} articles in CSV\n", flush=True)
+    except Exception as e:
+        print(f"\n❌ ERROR: Failed to parse CSV file", flush=True)
+        print(f"Error details: {e}", flush=True)
+        print("\nAttempting to read first few lines of CSV for debugging:", flush=True)
+        try:
+            with open("temp_export.csv", "r", encoding='utf-8') as f:
+                for i, line in enumerate(f):
+                    if i < 10:
+                        print(f"Line {i+1}: {line[:100]}...", flush=True)
+        except Exception as debug_e:
+            print(f"Could not read CSV for debugging: {debug_e}", flush=True)
+        return
 
     # Load already processed articles
     processed_articles = load_processed_articles()
