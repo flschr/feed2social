@@ -2,7 +2,7 @@ name: Feed2Social Bot
 
 on:
   schedule:
-    - cron: '*/6 * * * *' # Runs every 6 minutes
+    - cron: '*/50 * * * *' # Runs every 6 minutes
   workflow_dispatch: # Allows manual trigger
 
 permissions:
