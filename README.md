@@ -46,16 +46,17 @@ If you want to use the backup feature:
 * Create a bucket in **Backblaze B2**.
 * Set Lifecycle Rules to "Keep only the last version" to save space.
 
-### 4. Configure GitHub Secrets
+### 4. Configure GitHub Secrets & Variables
 Go to `Settings > Secrets and variables > Actions` in your forked repo and add the following:
 
-| Secret | Description |
+| Secret / Variable | Description |
 | :--- | :--- |
+| `RSS_FEED_URL` | **Required.** The URL of your RSS feed (e.g. `https://fischr.org/feed/`) |
 | `BSKY_HANDLE` | Your BlueSky handle (e.g., `user.bsky.social`) |
 | `BSKY_PW` | BlueSky **App Password** |
 | `MASTO_TOKEN` | Mastodon Access Token |
 | `INDEXNOW_KEY` | Your IndexNow API Key (optional) |
-| `B2_KEY_ID` | Backblaze B2 Key ID |
+| `B2_KEY_ID` | Backblaze B2 Key ID (for backups) |
 | `B2_APPLICATION_KEY` | Backblaze B2 Application Key |
 | `B2_BUCKET_NAME` | The name of your B2 Bucket |
 
@@ -73,6 +74,8 @@ The system uses **GitHub Actions** to run on a schedule (by default, every 6 min
 3.  **Processing**: It downloads images, converts HTML to Markdown, and cleans it up.
 4.  **Execution**: It sends data to Social Media APIs, IndexNow, and Backblaze B2.
 5.  **State Save**: It commits the updated `posted.txt` back to the repository.
+
+*Note: The `backup/full_backup.py` script is intended for one-time manual runs to archive your entire blog history. It may require minor manual path adjustments depending on your specific environment.*
 
 ---
 
