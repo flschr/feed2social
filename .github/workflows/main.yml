@@ -1,4 +1,4 @@
-name: RSS Bot
+name: Feed2Social Bot
 on:
   schedule:
     - cron: '*/6 * * * *'
@@ -20,8 +20,8 @@ jobs:
           BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
           BSKY_PW: ${{ secrets.BSKY_PW }}
           MASTO_TOKEN: ${{ secrets.MASTO_TOKEN }}
-          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }} # <-- Diese Zeile wurde hinzugefügt
-        run: python bot.py
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: python feed2social/bot.py 
       - name: Save State
         run: |
           git config user.name "Bot"; git config user.email "bot@github.com"

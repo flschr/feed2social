@@ -1,4 +1,4 @@
-name: Full Backup to B2
+name: Backup to B2 (full)
 
 on: 
   workflow_dispatch: 
