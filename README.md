@@ -51,7 +51,7 @@ Edit `feed2social/config.json` to match your blog's details. You can add multipl
 | **`url`** | The direct link to your RSS feed. |
 | **`include`** | *(Optional)* Only posts containing these keywords in the **title** or **hashtags** will be shared. |
 | **`exclude`** | *(Optional)* Posts containing these keywords in the **title** or **hashtags** will be ignored. |
-| **`include_images`** | If `true`, the bot attaches the first image of your post (including ALT-text). |
+| **`include_images`** | If `true`, the bot attaches the first image of your post (including ALT-text). Photo posts will automatically add the full content of the artilce to imiate a native Mastodon and Bluesky post. Content longer than 300 (Bluesky) and 500 (Mastodon) characters automatically gets cut off. |
 | **`targets`** | List of platforms to post to (`"bluesky"`, `"mastodon"`). |
 | **`template`** | Your post format. Use placeholders: `{title}`, `{link}`, `{content}`. |
 
