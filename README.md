@@ -1,8 +1,6 @@
 # 🐻 Bear Blog Automation Suite
 
-A complete automation system for Bear Blog (fischr.org) that handles **Social Media Distribution**, **SEO Indexing**, and **Automated Backups** to GitHub.
-
-Built with security hardening, performance optimization, and robust error handling.
+A complete automation system for Bear Blog for my blog (fischr.org) that handles **Social media distribution**, **SEO indexing**, and **automated backups** to GitHub.
 
 ---
 
