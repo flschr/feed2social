@@ -176,7 +176,8 @@ Process:
 
 ## 📜 License
 
-MIT License - Feel free to fork and customize for your own blog!
+This repository is licensed under the [WTFPL](https://www.wtfpl.net/) License.
+Feel free to fork and customize for your own blog!
 
 ---
 
