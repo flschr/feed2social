@@ -1,4 +1,4 @@
-# fischr.org Automation
+# fischr.org automations
 
 This repository contains a few scripts and Github actions to automate posting content on my social media accounts and to backup my website to Backblaze. 
 
