@@ -165,10 +165,19 @@ def run():
         for entry in feed.entries:
             if is_posted(entry.link): continue
             
-            # --- PRECISE FILTERING (Title & Hashtags only) ---
+            # --- PRECISE FILTERING (Title, Hashtags & Categories only) ---
             content_html = entry.content[0].value if hasattr(entry, 'content') else entry.get('summary', '')
+            
+            # 1. Extrahiere Hashtags aus dem HTML-Inhalt (z.B. #vlog)
             found_hashtags = " ".join(re.findall(r'#\w+', content_html))
-            check_string = (entry.title + " " + found_hashtags).lower()
+            
+            # 2. Extrahiere RSS-Kategorien (Tags vom Bear Blog)
+            rss_categories = ""
+            if hasattr(entry, 'tags'):
+                rss_categories = " ".join([tag.term for tag in entry.tags if hasattr(tag, 'term')])
+            
+            # Prüf-String zusammenbauen (Ohne den restlichen Fulltext)
+            check_string = (entry.title + " " + found_hashtags + " " + rss_categories).lower()
             
             if any(w.lower() in check_string for w in cfg.get('exclude', [])):
                 logger.info(f"Skipping (Exclude match): {entry.title}")
