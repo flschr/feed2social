@@ -7,7 +7,6 @@ A complete automation suite for Bear Blog (and other RSS-based blogs). This repo
 * `feed2social/`: The heart of the bot. Handles RSS monitoring, BlueSky/Mastodon posting, and IndexNow pings.
 * `backup/`: Scripts for incremental and full backups of your blog content and images.
 * `posted.txt`: The "memory" of the bot, ensuring no article is processed twice. This file stays in the root directory.
-* `requirements.txt`: Global dependencies for all scripts.
 
 ---
 
