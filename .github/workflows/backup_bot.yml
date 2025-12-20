@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 0 * * 1'  # Every Monday at midnight UTC
   workflow_dispatch:  # Allows manual start
+  workflow_call:  # Allows being called from other workflows
 
 jobs:
   backup:

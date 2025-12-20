@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      changes: ${{ steps.save_state.outputs.changes }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -33,10 +35,21 @@ jobs:
         run: python social_bot/social_bot.py
 
       - name: Save State
+        id: save_state
         run: |
           git config user.name "Bot"
           git config user.email "bot@github.com"
           git add social_bot/posted_articles.txt
           # "|| exit 0" prevents error if there are no changes to commit
-          git commit -m "Update posted articles [skip ci]" || exit 0
-          git push
+          if git commit -m "Update posted articles [skip ci]"; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git push
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+  trigger-backup:
+    needs: build
+    if: needs.build.outputs.changes == 'true'
+    uses: ./.github/workflows/backup_bot.yml
+    secrets: inherit
