@@ -1,6 +1,6 @@
 # fischr.org automations
 
-This repository contains a few scripts and Github actions to automate posting content on my social media accounts and to backup my website to Backblaze. 
+This repository contains a few scripts and Github actions to automate posting of new content to my social media accounts and IndexNow (Bing) and to backup my website to Backblaze regularly.
 
 The bot periodically checks RSS feeds and automatically posts new entries to social networks like BlueSky and Mastodon. Additionally, it submits new post URLs to search engines via the IndexNow service.
 
