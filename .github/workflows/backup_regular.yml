@@ -27,6 +27,7 @@ jobs:
 
       - name: Run Backup Script
         env:
+          RSS_FEED_URL: ${{ secrets.RSS_FEED_URL }}
           B2_KEY_ID: ${{ secrets.B2_KEY_ID }}
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
