@@ -1,64 +1,83 @@
-# fischr.org automations
+# 🚀 bearblog automation for fischr.org
 
-This repository contains a few scripts and Github actions to automate posting of new content to my social media accounts and IndexNow (Bing) and to backup my website to Backblaze regularly.
+A complete automation suite for Bearblog (and other RSS-based blogs). This repository handles **Social Media Distribution**, **SEO Indexing**, and **Automated Backups** to Backblaze B2.
 
-The bot periodically checks RSS feeds and automatically posts new entries to social networks like BlueSky and Mastodon. Additionally, it submits new post URLs to search engines via the IndexNow service.
+## 📂 Project Structure
 
-The backup is backing new articles up to Backblaze (B2) with every new feed entry. There is also a full backup script, just in case I want to do a full backup.
+* `feed2social/`: The heart of the bot. Handles RSS monitoring, BlueSky/Mastodon posting, and IndexNow pings.
+* `backup/`: Scripts for incremental and full backups of your blog content and images.
+* `posted.txt`: The "memory" of the bot, ensuring no article is processed twice. This file stays in the root directory.
 
-## How it works
+---
 
-The bot is powered by a GitHub Action (see `.github/workflows/main.yml`), which runs every 6 minutes by default.
+## ✨ Features
 
-1.  **Load Feeds**: The bot loads the RSS feeds defined in `config.json`.
-2.  **Duplicate Check**: It compares entries against `posted.txt` to avoid double-posting.
-3.  **Filter**: It checks if a post matches your `include` or `exclude` criteria.
-4.  **Format**: Posts are formatted using your custom `template` defined in the configuration.
-5.  **Dispatch**: The formatted content is sent to your defined `targets` like BlueSky or Mastodon.
-6.  **Media**: If enabled, the bot extracts the first image and attaches it to the post.
-7.  **Indexing**: The post URL is submitted to the IndexNow service for Bing, Yandex, and others.
-8.  **Sync**: The `posted.txt` file is updated and pushed back to your repository to save the state.
+1.  **Smart Social Sharing**: Automatically posts new articles to **BlueSky** and **Mastodon** based on your rules. You can create as many rules for as many feeds as you need, with flexible include and exclude filters to automate posting of your content.
+2.  **Media Support for Mastodon & Bluesky**: Social sharing allows to upload the first image from your post directly to Mastodon & Bluesky to use it as a native attachment on the platforms, including the ALT-text for accessibility.
+3.  **SEO Automation**: Pings **IndexNow** (Bing, Yandex, etc.) immediately after a new post is detected.
+4.  **Full & Incremental Backups**: Converts posts to clean Markdown and stores them along with all images in a **Backblaze B2** bucket.
 
-## Setup
+---
 
-Follow these steps to set up the bot for your own feeds:
+## 🛠 Setup Guide for Forking
 
-### 1. Fork the repository
-Create a fork of this repository in your own GitHub account.
+If you want to use this suite for your own blog, follow these steps:
 
-### 2. Customize `config.json`
-This is your main configuration file. It contains an array of feed objects.
+### 1. Fork this Repository
+Click the **Fork** button at the top right of this page to create your own copy.
 
-**Example `config.json`:**
+### 2. Configure your Blog
+Edit `feed2social/config.json` to match your blog's details:
+
 ```json
 [
   {
-    "name": "My Blog",
-    "url": "[https://fischr.org/feed/](https://fischr.org/feed/)",
-    "include": ["Announcement", "Release"],
-    "exclude": ["Private"],
+    "name": "My Awesome Blog",
+    "url": "[https://yourblog.com/feed/](https://yourblog.com/feed/)",
     "include_images": true,
     "targets": ["bluesky", "mastodon"],
-    "template": "New blog post: {title}\n\n{link}"
+    "template": "Check out my new post: {title}\n\n{link}"
   }
 ]
 ```
 
-*   `name`: A descriptive name for the feed used in logs.
-*   `url`: The URL of the RSS feed.
-*   `include` (optional): A list of keywords; a post is only shared if it contains at least one of these words.
-*   `exclude` (optional): A list of keywords; a post is ignored if it contains any of these words.
-*   `include_images`: If `true`, the bot tries to extract and post the first image from the article.
-*   `targets`: The platforms to post to, supporting `"bluesky"` and `"mastodon"`.
-*   `template`: The post text format using placeholders like `{title}`, `{link}` and `{content}`
+### 3. Set up Backblaze B2 (optional)
+If you want to use the backup feature:
+* Create a bucket in **Backblaze B2**.
+* Set Lifecycle Rules to "Keep only the last version" to save space.
 
-### 3. Configure GitHub Secrets
+### 4. Configure GitHub Secrets
+Go to `Settings > Secrets and variables > Actions` in your forked repo and add the following:
 
-To allow the bot to post, you must add your credentials as Repository Secrets under `Settings > Secrets and variables > Actions`.
+| Secret | Description |
+| :--- | :--- |
+| `BSKY_HANDLE` | Your BlueSky handle (e.g., `user.bsky.social`) |
+| `BSKY_PW` | BlueSky **App Password** |
+| `MASTO_TOKEN` | Mastodon Access Token |
+| `INDEXNOW_KEY` | Your IndexNow API Key (optional) |
+| `B2_KEY_ID` | Backblaze B2 Key ID |
+| `B2_APPLICATION_KEY` | Backblaze B2 Application Key |
+| `B2_BUCKET_NAME` | The name of your B2 Bucket |
 
-Required Secrets:
+### 5. Enable Actions
+Go to the **Actions** tab in your repository and click **"I understand my workflows, go ahead and enable them"**.
 
-* `BSKY_HANDLE`: Your BlueSky identifier without the @.
-* `BSKY_PW`: An App Password created in BlueSky Settings.
-* `MASTO_TOKEN`: Your Mastodon access token created under Development settings.
-* `INDEXNOW_KEY`: (optional) your IndexNow API key, which can be verified via a DNS TXT record named _indexnow.
+---
+
+## 🤖 How it works (Technical)
+
+The system uses **GitHub Actions** to run on a schedule (by default, every 6 minutes for the bot, every 6 hours for regular backups).
+
+1.  **Scanning**: It parses your RSS feed via `feedparser`.
+2.  **Deduplication**: It checks `posted.txt`. If the link was already posted, it skips.
+3.  **Processing**: It downloads images, converts HTML to Markdown, and cleans it up.
+4.  **Execution**: It sends data to Social Media APIs, IndexNow, and Backblaze B2.
+5.  **State Save**: It commits the updated `posted.txt` back to the repository.
+
+---
+
+## Author
+Created by **[René Fischer](https://fischr.org)**.
+
+## 📝 License
+MIT - Feel free to use it for your own blog!
