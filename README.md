@@ -53,7 +53,7 @@ bearblog-automation/
 
 ---
 
-## 🚀 Setup Guide
+## You want to use this setup for your (Bear) Blog?
 
 ### 1. Fork this Repository
 Click **Fork** at the top right to create your own copy.
