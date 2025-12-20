@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #mapDiv {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mapDiv"></div>
+      
+    <script nonce="av5yHL718azyMNKbZILM6w">
+      function onEmbedLoad() {
+        initEmbed([null,null,null,null,null,[[[2,"spotlit",null,null,null,null,null,[null,null,null,null,null,null,null,null,null,null,11,null,[null,null,null,null,null,null,null,null,null,null,null,null,null,1]]]],null,null,[[null,null,null,null,null,null,null,null,null,null,null,null,null,[[["5152715010382133131","17220859108292425994"],"/g/11vy1415q9",null,[457347050,107324047],null,null,null,null,null,null,null,null,null,null,"gcid:tourist_attraction"],0,0,null,null,0,null,0]]]],null,["de","de"],[null,null,null,"/maps/api/js/ApplicationService.GetEntityDetails","/maps/embed/upgrade204",null,"/maps/embed/record204"],null,null,null,null,null,null,null,null,"XCFHabO5MYHR5NoPvpiesQU",null,null,null,[[[2784.823251636579,10.7324047,45.73470499999999],[0,0,0],null,13.10000038146973],null,0,[["0x47821f006ea6778b:0xeefcc81e74d1f90a","Spiaggia, Strada Statale Gardesana Occidentale, 92, 25080 Tignale BS, Italien",[45.734705,10.7324047],"17220859108292425994"],"Spiaggia",["Strada Statale Gardesana Occidentale, 92","25080 Tignale BS","Italien"],4.699999809265137,"11 Berichte",null,null,null,null,null,null,null,"Sehenswürdigkeit","Strada Statale Gardesana Occidentale, 92, 25080 Tignale BS, Italien",null,null,null,null,null,null,null,null,null,null,null,null,null,"ChIJi3embgAfgkcRCvnRdB7I_O4",null,null,"0ahUKEwiz18nmmc2RAxWBKFkFHT6MJ1YQ8BcIAigA",null,null,null,null,null,null,1,["0ahUKEwiz18nmmc2RAxWBKFkFHT6MJ1YQqtMBCA0oCg",["8FQGPPMJ+VX"],["PPMJ+VX Tignale, Brescia, Italien"],3]]],null,null,null,0,null,null,null,null,null,null,[1]]);
+      }
+      function onApiLoad() {
+        var embed = document.createElement('script');
+        embed.src = "https://maps.gstatic.com/maps-api-v3/embed/js/63/5d/intl/de_ALL/init_embed.js";
+        document.body.appendChild(embed);
+      }
+    </script>
+    <link rel="preload" href="https://maps.gstatic.com/maps-api-v3/embed/js/63/5d/intl/de_ALL/init_embed.js" nonce="av5yHL718azyMNKbZILM6w" as="script" />
+    <script src="https://maps.googleapis.com/maps/api/js?client=google-maps-embed&amp;paint_origin=&amp;libraries=geometry,search&amp;v=weekly&amp;loading=async&amp;language=de&amp;region=de&amp;callback=onApiLoad" nonce="av5yHL718azyMNKbZILM6w" async defer></script>
+  </body>
+</html>

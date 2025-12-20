@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+<head>
+  <title>ARTE</title>
+  <meta name="viewport" content="initial-scale=1.0, width=device-width"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta property='og:type' content='video'/>
+  <meta property="og:site_name" content="arte.tv"/>
+  <meta name="twitter:player:height" content="360">
+  <meta name="twitter:player:width" content="640">
+  <meta name="twitter:domain" content="arte.tv">
+  <meta name="twitter:card" content="player">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="480">
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" type="text/css" href="https://static-cdn.arte.tv/static/artevp/8.31.1/css/arte.css"/>
+  
+  <script>
+    if (window.location.host.indexOf('arte.tv') > 0)
+      document.domain = 'arte.tv';
+  </script>
+  <style>
+    /*
+      Let iframe content in full width / height
+      It will adapt to wrapper dimensions
+    */
+    html body {
+        padding-top: 0;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        background: black;
+    }
+    body {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+    }
+    .avp-container {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        overflow: auto;
+    }
+    .avp-container .avp {
+        padding-bottom: 0;
+        height: 100%;
+    }
+    .avp-container .avp-background img {
+      object-fit: contain;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #header-container header {
+        position:relative !important;
+    }
+    .avp-buttons-container {
+        padding:5px;
+        background: #111;
+        color:#FFF;
+    }
+    .avp-prerender {
+      color: white;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .avp-unsupported {
+      color: white;
+      width: calc(100% - 20px);
+      text-align: center;
+      position: absolute;
+      top: 50%;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.playerConfig = JSON.parse('{"locales":{"valid":["fr_FR","de_DE","en_US","es_ES","pl_PL"],"fallback":{"en_EN":"en_US"},"default":"fr_FR"},"twitter_hashtag":{"fr_FR":"","de_DE":"","en_US":"","es_ES":"","pl_PL":""},"twitter_via":{"fr_FR":"ARTEfr","de_DE":"ARTEde","en_US":"ARTEen","es_ES":"","pl_PL":"","null":""},"twitter_app_id_iphone":{"fr_FR":"405028510","de_DE":"405028510","en_US":"405028510","es_ES":"","pl_PL":""},"twitter_app_id_ipad":{"fr_FR":"405028510","de_DE":"405028510","en_US":"405028510","es_ES":"","pl_PL":""},"twitter_app_id_googleplay":{"fr_FR":"tv.arte.plus7","de_DE":"tv.arte.plus7","en_US":"tv.arte.plus7","es_ES":"","pl_PL":""},"twitter_app_name_iphone":{"fr_FR":"Application  ARTE  pour  iPhone","de_DE":"ARTE  App  für  iPhone","en_US":"Application  ARTE  pour  iPhone","es_ES":"","pl_PL":""},"twitter_app_name_ipad":{"fr_FR":"Application  ARTE  pour  iPad","de_DE":"ARTE  App  für  iPad","en_US":"Application  ARTE  pour  iPad","es_ES":"","pl_PL":""},"twitter_app_name_googleplay":{"fr_FR":"Application  ARTE  pour  Androïd","de_DE":"ARTE  App  für  Androïd","en_US":"Application  ARTE  pour  Androïd","es_ES":"","pl_PL":""},"twitter_app_url_iphone":{"fr_FR":"https://itunes.apple.com/fr/app/arte/id405028510?mt=8","de_DE":"https://itunes.apple.com/de/app/arte/id405028510?mt=8","en_US":"https://itunes.apple.com/fr/app/arte/id405028510?mt=8","es_ES":"","pl_PL":""},"twitter_app_url_ipad":{"fr_FR":"https://itunes.apple.com/fr/app/arte/id405028510?mt=8","de_DE":"https://itunes.apple.com/de/app/arte/id405028510?mt=8","en_US":"https://itunes.apple.com/fr/app/arte/id405028510?mt=8","es_ES":"","pl_PL":""},"twitter_app_url_googleplay":{"fr_FR":"https://play.google.com/store/apps/details?id=tv.arte.plus7&hl=fr","de_DE":"https://play.google.com/store/apps/details?id=tv.arte.plus7&hl=de","en_US":"https://play.google.com/store/apps/details?id=tv.arte.plus7&hl=fr","es_ES":"","pl_PL":""},"facebook_app_id":416821615179393,"e2e":{"baseTestUrl":"https://api.arte.tv/api/player/v2/config/de/114583-004-A"},"staticAssetsBaseUrl":"https://static-cdn.arte.tv/static/artevp/"}');
+  </script>
+  <script>
+    // external control can instantiate player
+    window.addEventListener('message', function(event) {
+      if (event.data.method === 'play') {
+          if (document.querySelector('.avp-container .avp-player')
+          && document.querySelector('.avp-container .avp-player').classList.contains('isTeaser')) {
+              document.querySelector('.avp-clickcatcher').click();
+          }
+      }
+    }, false);
+    window.env = 'prod';
+  </script>
+  <div id="avp-container" class="avp-container">
+    <div class="avp-prerender">
+      Loading...
+    </div>
+  </div>
+  <script src='https://polyfill.arte.tv/polyfill/v3/polyfill.min.js?features=default%2Ces6%2CElement.prototype.scrollBy%2CIntersectionObserver%2Cfetch%2CArray.prototype.flat%2CResizeObserver%2CglobalThis%2CObject.entries'></script>
+  <script src="https://static-cdn.arte.tv/static/artevp/iframe/index.js?ver=8.31.1-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" defer></script>
+  </body>
+
+  </html>
