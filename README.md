@@ -1,6 +1,6 @@
-# 🚀 bearblog automation for fischr.org
+# 🐻🚀 Bear Blog automation for fischr.org
 
-A complete automation suite for Bearblog (and other RSS-based blogs). This repository handles **Social Media Distribution**, **SEO Indexing**, and **Automated Backups** to Backblaze B2.
+A complete automation suite for Bear Blog (and other RSS-based blogs). This repository handles **Social Media Distribution**, **SEO Indexing**, and **Automated Backups** to Backblaze B2.
 
 ## 📂 Project Structure
 
@@ -28,13 +28,13 @@ Follow these steps to set up this suite for your own blog:
 Click the **Fork** button at the top right of this page to create your own copy.
 
 ### 2. Configure your Blog
-Edit `feed2social/config.json` to define which feeds to monitor. You can add multiple of these configuration blocks also with different, topic-related feeds to the configuration.
+Edit `feed2social/config.json` to match your blog's details. You can add multiple configuration blocks for different feeds.
 
 ```json
 [
   {
     "name": "My Blog",
-    "url": "[https://yourblog.com/feed/](https://yourblog.com/feed/)",
+    "url": "https://yourblog.com/feed/",
     "include": ["Announcement"], 
     "exclude": ["Draft"],
     "include_images": true,
@@ -50,16 +50,23 @@ Edit `feed2social/config.json` to define which feeds to monitor. You can add mul
 | :--- | :--- |
 | **`name`** | A descriptive name for the feed (used for logging). |
 | **`url`** | The direct link to your RSS feed. |
-| **`include`** | *(Optional)* Only posts containing these keywords in the title or content will be shared. |
-| **`exclude`** | *(Optional)* Posts containing these keywords will be ignored. |
+| **`include`** | *(Optional)* Only posts containing these keywords in the **title** or **hashtags** will be shared. |
+| **`exclude`** | *(Optional)* Posts containing these keywords in the **title** or **hashtags** will be ignored. |
 | **`include_images`** | If `true`, the bot attaches the first image of your post (including ALT-text). |
 | **`targets`** | List of platforms to post to (`"bluesky"`, `"mastodon"`). |
 | **`template`** | Your post format. Use placeholders: `{title}`, `{link}`, `{content}`. |
 
-### 3. Set up Backblaze B2 (optional)
-If you want to use the backup feature:
-* Create a bucket in **Backblaze B2**.
-* Set Lifecycle Rules to "Keep only the last version" to save space.
+### 3. Set up SEO & Backups (Optional)
+
+#### IndexNow (SEO)
+To automate indexing for Bing and others:
+1.  Generate an API Key at [IndexNow.org](https://www.indexnow.org/how-to).
+2.  Host the key as a `.txt` file or via a DNS TXT record (recommended for Bearblog).
+3.  Add the key to your GitHub Secrets as `INDEXNOW_KEY`.
+
+#### Backblaze B2 (Backups)
+1.  Create a bucket in **Backblaze B2**.
+2.  Set Lifecycle Rules to "Keep only the last version" to save space.
 
 ### 4. Configure GitHub Secrets & Variables
 Go to `Settings > Secrets and variables > Actions` and add the following:
@@ -70,8 +77,8 @@ Go to `Settings > Secrets and variables > Actions` and add the following:
 | `BSKY_HANDLE` | Your BlueSky handle (e.g., `user.bsky.social`) |
 | `BSKY_PW` | BlueSky **App Password** |
 | `MASTO_TOKEN` | Mastodon Access Token |
-| `INDEXNOW_KEY` | Your IndexNow API Key (optional) |
-| `B2_KEY_ID` | Backblaze B2 Key ID (for backups) |
+| `INDEXNOW_KEY` | Your IndexNow API Key |
+| `B2_KEY_ID` | Backblaze B2 Key ID |
 | `B2_APPLICATION_KEY` | Backblaze B2 Application Key |
 | `B2_BUCKET_NAME` | The name of your B2 Bucket |
 

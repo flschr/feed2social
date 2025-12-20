@@ -24,6 +24,7 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'config.json')
 
 @contextmanager
 def posted_file_lock():
+    """Simple file lock to prevent concurrent write access."""
     retry = 0
     while os.path.exists(LOCK_FILE) and retry < 10:
         sleep(0.5)
@@ -35,18 +36,21 @@ def posted_file_lock():
         if os.path.exists(LOCK_FILE): os.remove(LOCK_FILE)
 
 def is_posted(link):
+    """Checks if a URL is already listed in posted.txt."""
     if not os.path.exists(POSTED_FILE): return False
     with posted_file_lock():
         with open(POSTED_FILE, 'r') as f:
             return link in f.read()
 
 def mark_as_posted(link):
+    """Adds a URL to the posted.txt file in the main directory."""
     with posted_file_lock():
         with open(POSTED_FILE, 'a') as f:
             f.write(link + '\n')
     logger.info(f"Marked as posted: {link}")
 
 def get_html_content(entry):
+    """Extracts text content from RSS entry and removes images."""
     try:
         html = entry.content[0].value if hasattr(entry, 'content') else entry.get('summary', '')
         soup = BeautifulSoup(html, "html.parser")
@@ -55,7 +59,7 @@ def get_html_content(entry):
     except: return ""
 
 def get_first_image_data(entry):
-    """Extracts the first image URL and its alt text."""
+    """Extracts the first image URL and its alt text using BeautifulSoup."""
     try:
         html = entry.content[0].value if hasattr(entry, 'content') else entry.get('summary', '')
         soup = BeautifulSoup(html, "html.parser")
@@ -63,12 +67,13 @@ def get_first_image_data(entry):
         if img and img.get('src'):
             return {
                 "url": img.get('src'),
-                "alt": img.get('alt', '')[:400] # Cap alt text length
+                "alt": img.get('alt', '')[:400]
             }
         return None
     except: return None
 
 def download_image(img_url, save_path="temp.jpg"):
+    """Downloads an image for posting, observing size limits."""
     try:
         r = session.get(img_url, timeout=REQUEST_TIMEOUT, stream=True)
         r.raise_for_status()
@@ -79,6 +84,7 @@ def download_image(img_url, save_path="temp.jpg"):
     except: return None
 
 def get_og_metadata(url):
+    """Retrieves Open Graph metadata for link previews."""
     try:
         r = session.get(url, timeout=REQUEST_TIMEOUT)
         soup = BeautifulSoup(r.text, 'html.parser')
@@ -93,15 +99,17 @@ def get_og_metadata(url):
     except: return None
 
 def submit_to_indexnow(url):
+    """Submits the URL to IndexNow for search engine indexing."""
     key = os.getenv('INDEXNOW_KEY')
     if not key: return
     payload = {"host": "fischr.org", "key": key, "urlList": [url]}
     try:
         session.post("https://www.bing.com/indexnow", json=payload, timeout=REQUEST_TIMEOUT)
+        logger.info(f"IndexNow Success for {url}")
     except: pass
 
 def post_to_bluesky(text, link, img_path, alt_text):
-    """Posts to BlueSky with Alt-Text support."""
+    """Authenticates and posts text/media to BlueSky with Alt-Text."""
     client = Client()
     client.login(os.getenv('BSKY_HANDLE'), os.getenv('BSKY_PW'))
     tb = client_utils.TextBuilder()
@@ -116,7 +124,6 @@ def post_to_bluesky(text, link, img_path, alt_text):
     if img_path and os.path.exists(img_path):
         with open(img_path, 'rb') as f:
             upload = client.upload_blob(f.read())
-            # Add alt text here
             embed = models.AppBskyEmbedImages.Main(
                 images=[models.AppBskyEmbedImages.Image(alt=alt_text or "", image=upload.blob)]
             )
@@ -135,11 +142,10 @@ def post_to_bluesky(text, link, img_path, alt_text):
     logger.info("BlueSky Success")
 
 def post_to_mastodon(text, img_path, alt_text):
-    """Posts to Mastodon with Alt-Text support."""
+    """Authenticates and posts text/media to Mastodon with Alt-Text."""
     m = Mastodon(access_token=os.getenv('MASTO_TOKEN'), api_base_url='https://mastodon.social')
     ids = []
     if img_path:
-        # Upload media with description (alt text)
         media = m.media_post(img_path, description=alt_text or "")
         ids.append(media['id'])
     
@@ -147,8 +153,11 @@ def post_to_mastodon(text, img_path, alt_text):
     logger.info("Mastodon Success")
 
 def run():
+    """Main execution loop for all configured feeds with precise filtering."""
     logger.info("=== Bot Start ===")
-    if not os.path.exists(CONFIG_FILE): return
+    if not os.path.exists(CONFIG_FILE):
+        logger.error(f"Config file not found: {CONFIG_FILE}")
+        return
         
     with open(CONFIG_FILE) as f: config = json.load(f)
     for cfg in config:
@@ -156,13 +165,20 @@ def run():
         for entry in feed.entries:
             if is_posted(entry.link): continue
             
-            text_to_check = (entry.title + " " + entry.get('summary', '')).lower()
-            if any(w.lower() in text_to_check for w in cfg.get('exclude', [])): continue
-            if cfg.get('include') and not any(w.lower() in text_to_check for w in cfg['include']): continue
+            # --- PRECISE FILTERING (Title & Hashtags only) ---
+            content_html = entry.content[0].value if hasattr(entry, 'content') else entry.get('summary', '')
+            found_hashtags = " ".join(re.findall(r'#\w+', content_html))
+            check_string = (entry.title + " " + found_hashtags).lower()
+            
+            if any(w.lower() in check_string for w in cfg.get('exclude', [])):
+                logger.info(f"Skipping (Exclude match): {entry.title}")
+                continue
+            if cfg.get('include') and not any(w.lower() in check_string for w in cfg['include']):
+                logger.info(f"Skipping (No Include match): {entry.title}")
+                continue
 
             logger.info(f"Processing: {entry.title}")
             
-            # --- IMAGE & ALT TEXT LOGIC ---
             img_data = get_first_image_data(entry) if cfg.get('include_images') else None
             img_path = download_image(img_data['url']) if img_data else None
             alt_text = img_data['alt'] if img_data else ""
@@ -178,7 +194,7 @@ def run():
                 submit_to_indexnow(entry.link)
                 mark_as_posted(entry.link)
                 
-            except Exception as e: logger.error(f"Error: {e}")
+            except Exception as e: logger.error(f"Execution Error: {e}")
             finally: 
                 if img_path and os.path.exists(img_path): os.remove(img_path)
     logger.info("=== Bot End ===")
