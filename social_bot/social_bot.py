@@ -318,8 +318,8 @@ def submit_to_indexnow(url: str) -> None:
         logger.error(f"Unexpected error in IndexNow submission: {e}")
 
 
-def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str) -> None:
-    """Post rich text to Bluesky, converting hashtags and links into clickable facets."""
+def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Optional[str] = None) -> None:
+    """Post rich text to Bluesky, converting hashtags and links into clickable facets with link card preview."""
     handle = os.getenv('BSKY_HANDLE')
     password = os.getenv('BSKY_PW')
 
@@ -349,7 +349,46 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str) -> None:
                 tb.text(' ')
 
         embed = None
-        if img_path and os.path.exists(img_path):
+
+        # Prefer external link card with OG preview over image embed
+        if link:
+            try:
+                og_data = get_og_metadata(link)
+                if og_data:
+                    # Download OG image if available
+                    thumb_blob = None
+                    if og_data.get('image_url'):
+                        og_img_path = download_image(og_data['image_url'])
+                        if og_img_path and os.path.exists(og_img_path):
+                            try:
+                                with open(og_img_path, 'rb') as f:
+                                    thumb_blob = client.upload_blob(f.read()).blob
+                            except Exception as e:
+                                logger.warning(f"Error uploading OG image: {e}")
+                            finally:
+                                # Clean up OG image
+                                if og_img_path and os.path.exists(og_img_path):
+                                    try:
+                                        os.unlink(og_img_path)
+                                    except Exception as e:
+                                        logger.warning(f"Error removing OG image file: {e}")
+
+                    # Create external link card embed
+                    embed = models.AppBskyEmbedExternal.Main(
+                        external=models.AppBskyEmbedExternal.External(
+                            title=og_data.get('title', 'Blog post')[:300],
+                            description=og_data.get('description', '')[:1000],
+                            uri=link,
+                            thumb=thumb_blob
+                        )
+                    )
+                    logger.info("Created external link card embed for Bluesky")
+            except Exception as e:
+                logger.warning(f"Error creating external embed: {e}")
+                # Fall back to image embed if link card fails
+
+        # If no link card was created, use image embed as fallback
+        if embed is None and img_path and os.path.exists(img_path):
             try:
                 with open(img_path, 'rb') as f:
                     upload = client.upload_blob(f.read())
@@ -518,7 +557,7 @@ def process_entry(
     try:
         # Post to configured platforms
         if PLATFORM_BLUESKY in cfg.get('targets', []):
-            post_to_bluesky(msg, img_path, alt_text)
+            post_to_bluesky(msg, img_path, alt_text, link=entry.link)
 
         if PLATFORM_MASTODON in cfg.get('targets', []):
             post_to_mastodon(msg, img_path, alt_text)
