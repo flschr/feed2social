@@ -30,4 +30,5 @@ Want to use this for your blog? Here's the path:
 ## Author & License
 
 Made by [René Fischer](https://fischr.org) to automate [fischr.org](https://fischr.org).
+
 License: [WTFPL](https://www.wtfpl.net/) — Do what you want. I couldn't care less :)
