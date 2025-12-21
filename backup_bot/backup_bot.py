@@ -31,7 +31,6 @@ def load_config() -> dict:
         return yaml.safe_load(f)
 
 CONFIG = load_config()
-BLOG_DOMAIN = CONFIG['blog']['domain']
 BEARBLOG_USERNAME = CONFIG['blog']['bearblog_username']
 
 # --- CONSTANTS ---
@@ -40,17 +39,6 @@ REQUEST_TIMEOUT = 15
 MAX_IMAGE_SIZE = 10_000_000  # 10MB limit
 MAX_CSV_SIZE = 50_000_000  # 50MB limit for CSV
 MAX_WORKERS = 5  # Concurrent image downloads
-
-# Security: Allowed image domains
-ALLOWED_IMAGE_DOMAINS = {
-    'bearblog.dev',
-    'digitaloceanspaces.com',  # Bear Blog CDN (bear-images.sfo2.cdn.digitaloceanspaces.com)
-    'imgur.com',
-    'i.imgur.com',
-    'cloudinary.com',
-    'githubusercontent.com',
-    BLOG_DOMAIN
-}
 
 # Paths
 BASE_DIR = Path("blog_posts")
@@ -105,25 +93,13 @@ def clean_filename(text: str) -> str:
 
 
 def is_safe_url(url: str) -> bool:
-    """Validate that the URL is from an allowed domain and uses safe protocol."""
+    """Validate that the URL uses a safe protocol (HTTP/HTTPS)."""
     try:
         parsed = urlparse(url)
-
-        # Only allow HTTP/HTTPS
         if parsed.scheme not in ('http', 'https'):
             logger.warning(f"Rejected URL with unsafe protocol: {parsed.scheme}")
             return False
-
-        domain = parsed.netloc.lower().replace('www.', '')
-
-        # Check if domain is in whitelist
-        for allowed in ALLOWED_IMAGE_DOMAINS:
-            if domain == allowed or domain.endswith('.' + allowed):
-                return True
-
-        logger.warning(f"Rejected URL from untrusted domain: {domain}")
-        return False
-
+        return True
     except Exception as e:
         logger.warning(f"Error validating URL: {e}")
         return False

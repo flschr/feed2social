@@ -37,7 +37,6 @@ def load_config() -> dict:
         return yaml.safe_load(f)
 
 CONFIG = load_config()
-BLOG_DOMAIN = CONFIG['blog']['domain']
 MASTODON_INSTANCE = CONFIG['social']['mastodon_instance']
 
 # --- CONSTANTS ---
@@ -55,16 +54,6 @@ POSTED_FILE = BASE_DIR / 'posted_articles.txt'
 LOCK_FILE = BASE_DIR / 'posted_articles.txt.lock'
 CONFIG_FILE = BASE_DIR / 'config.json'
 FEED_CACHE_FILE = BASE_DIR / 'feed_cache.json'
-
-# URL Whitelist for security (allow known image hosting services)
-ALLOWED_IMAGE_DOMAINS = {
-    'bearblog.dev',
-    'imgur.com',
-    'i.imgur.com',
-    'cloudinary.com',
-    'githubusercontent.com',
-    BLOG_DOMAIN
-}
 
 # Session configuration
 session = requests.Session()
@@ -259,23 +248,11 @@ def get_html_content(entry: Any) -> str:
 
 
 def is_safe_image_url(url: str) -> bool:
-    """Validate that the image URL is from an allowed domain."""
+    """Validate that the image URL uses a safe protocol (HTTP/HTTPS)."""
     try:
         parsed = urlparse(url)
-        domain = parsed.netloc.lower()
-
-        # Remove 'www.' prefix for comparison
-        domain = domain.replace('www.', '')
-
-        # Check if domain is in whitelist or is subdomain of allowed domain
-        for allowed in ALLOWED_IMAGE_DOMAINS:
-            if domain == allowed or domain.endswith('.' + allowed):
-                return True
-
-        logger.warning(f"Image URL from untrusted domain rejected: {domain}")
-        return False
-    except Exception as e:
-        logger.warning(f"Error validating image URL: {e}")
+        return parsed.scheme in ('http', 'https')
+    except Exception:
         return False
 
 

@@ -2,9 +2,7 @@
 # Adjust these values when forking this repository
 
 blog:
-  # Your blog domain (without https://)
-  domain: "fischr.org"
-  # Your Bear Blog username (used for export URL)
+  # Your Bear Blog username (used for backup export URL)
   bearblog_username: "fischr"
 
 social:
