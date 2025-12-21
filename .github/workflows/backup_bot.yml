@@ -49,8 +49,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: ${{ github.event_name == 'workflow_dispatch' && 'Manual blog backup' || github.event_name == 'schedule' && 'Scheduled blog backup' || 'Automatic blog backup' }}
-          # Note: last_export.csv is only saved if save_debug_csv is enabled in config.yaml
-          file_pattern: 'blog-backup/** bots/backup_bot/processed_articles.txt bots/backup_bot/last_export.csv'
+          file_pattern: 'blog-backup/** bots/backup_bot/processed_articles.txt'
 
       - name: Fail if backup failed
         if: steps.backup.outcome == 'failure'
