@@ -195,10 +195,21 @@ def download_file(url: str, folder: Path) -> bool:
         return False
 
 
-def get_content_hash(content: str) -> str:
-    """Creates a secure hash from content to detect changes."""
-    # Use SHA-256 instead of MD5 for security
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+def get_content_hash(row: pd.Series) -> str:
+    """
+    Creates a secure hash from content AND relevant metadata to detect changes.
+    This ensures that changes to meta_image, title, etc. trigger re-processing.
+    """
+    # Include content and all metadata that should trigger a re-download
+    hash_parts = [
+        str(row.get('content', '')),
+        str(row.get('meta image', '')),
+        str(row.get('title', '')),
+        str(row.get('meta description', '')),
+        str(row.get('canonical url', '')),
+    ]
+    combined = '|'.join(hash_parts)
+    return hashlib.sha256(combined.encode('utf-8')).hexdigest()
 
 
 def load_processed_articles() -> Dict[str, str]:
@@ -495,8 +506,8 @@ def process_article(row: pd.Series, df: pd.DataFrame, processed_articles: Dict[s
         pub_date_str = str(row['published date'])
         slug = str(row['slug'])
 
-        # Calculate content hash
-        content_hash = get_content_hash(content)
+        # Calculate content hash (includes content + metadata)
+        content_hash = get_content_hash(row)
 
         # Check if article was already processed
         if uid in processed_articles:
@@ -526,7 +537,7 @@ def process_article(row: pd.Series, df: pd.DataFrame, processed_articles: Dict[s
         post_dir = BASE_DIR / folder_name
         post_dir.mkdir(parents=True, exist_ok=True)
 
-        # Download images concurrently
+        # Download images concurrently (from content)
         download_images_concurrent(content, post_dir)
 
         # Create index.md with proper YAML frontmatter
