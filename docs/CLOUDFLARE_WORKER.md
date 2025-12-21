@@ -113,9 +113,8 @@ Cloudflare Worker (every 1 min)
 
 ## Related Documentation
 
-- [Social Bot](SOCIAL_BOT.md) - Automatic social media posting
+- [Social Bot](SOCIAL_BOT.md) - Automatic social media posting & feed configuration
 - [Backup Bot](BACKUP_BOT.md) - Automatic blog backups
-- [Feed Configuration](CONFIGURATION.md) - Configure RSS feeds and templates
 
 
 ---

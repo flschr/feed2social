@@ -26,11 +26,91 @@ social:
 
 ### Feed Config (`bots/social_bot/config.json`)
 
-See [Feed Configuration](CONFIGURATION.md) for detailed setup.
+Each feed is configured as an object in the JSON array:
+
+```json
+[
+  {
+    "name": "Blog Articles",
+    "url": "https://yourblog.com/feed/",
+    "include": ["blog"],
+    "exclude": ["draft"],
+    "include_images": true,
+    "template": "New post: {title}\n\n{link}",
+    "targets": ["bluesky", "mastodon"]
+  }
+]
+```
+
+#### Configuration Options
+
+| Option | Required | Description |
+|--------|----------|-------------|
+| `name` | Yes | Descriptive name (used in logs) |
+| `url` | Yes | RSS feed URL |
+| `include` | No | Only posts with these keywords in title/hashtags/categories |
+| `exclude` | No | Skip posts with these keywords |
+| `include_images` | No | Attach first image with ALT text (`true`/`false`) |
+| `template` | Yes | Post format with placeholders |
+| `targets` | Yes | Platforms: `["bluesky"]`, `["mastodon"]`, or both |
+
+#### Template Variables
+
+Use these placeholders in the `template` field:
+
+| Variable | Description |
+|----------|-------------|
+| `{title}` | Post title |
+| `{link}` | URL to the blog post |
+| `{content}` | Cleaned text content (auto-truncated) |
+
+**Content limits:**
+- BlueSky: 300 characters
+- Mastodon: 500 characters
+
+**Hashtags:** Added in templates are automatically converted to native rich text on BlueSky.
+
+#### Examples
+
+**Photo Posts**
+```json
+{
+  "name": "Photos",
+  "url": "https://yourblog.com/feed?q=photos",
+  "include": ["photo"],
+  "include_images": true,
+  "template": "{content} #photography",
+  "targets": ["bluesky", "mastodon"]
+}
+```
+
+**Blog Articles**
+```json
+{
+  "name": "Blog",
+  "url": "https://yourblog.com/feed/",
+  "include": ["blog"],
+  "exclude": ["draft", "private"],
+  "template": "New post: {title}\n\n{link}",
+  "targets": ["bluesky", "mastodon"]
+}
+```
+
+**Movie Reviews**
+```json
+{
+  "name": "Movies",
+  "url": "https://yourblog.com/feed?q=movies",
+  "template": "Just watched {title}. {link}",
+  "targets": ["bluesky"]
+}
+```
 
 ---
 
 ## GitHub Secrets
+
+Configure these in **Settings → Secrets → Actions**:
 
 | Secret | Required | Description |
 |--------|----------|-------------|
@@ -81,5 +161,4 @@ The bot can be triggered:
 ## Related Documentation
 
 - [Backup Bot](BACKUP_BOT.md) - Automatic blog backups
-- [Feed Configuration](CONFIGURATION.md) - Configure RSS feeds and templates
 - [Cloudflare Worker](CLOUDFLARE_WORKER.md) - Instant trigger setup

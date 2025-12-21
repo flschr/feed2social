@@ -92,6 +92,5 @@ The backup runs:
 
 ## Related Documentation
 
-- [Social Bot](SOCIAL_BOT.md) - Automatic social media posting
-- [Feed Configuration](CONFIGURATION.md) - Configure RSS feeds
+- [Social Bot](SOCIAL_BOT.md) - Automatic social media posting & feed configuration
 - [Cloudflare Worker](CLOUDFLARE_WORKER.md) - Instant trigger setup
