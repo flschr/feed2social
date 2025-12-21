@@ -5,3 +5,4 @@ requests
 beautifulsoup4
 markdownify
 b2sdk
+PyYAML>=6.0

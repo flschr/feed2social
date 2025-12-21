@@ -11,6 +11,7 @@ import requests
 import logging
 import tempfile
 import hashlib
+import yaml
 from typing import Optional, Dict, List, Set, Any
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -28,6 +29,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# --- LOAD CONFIG ---
+def load_config() -> dict:
+    """Load configuration from central config.yaml file."""
+    config_path = Path(__file__).parent.parent / "config.yaml"
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+CONFIG = load_config()
+MASTODON_INSTANCE = CONFIG['social']['mastodon_instance']
+
 # --- CONSTANTS ---
 MAX_IMAGE_SIZE = 5_000_000
 REQUEST_TIMEOUT = 10
@@ -43,16 +54,6 @@ POSTED_FILE = BASE_DIR / 'posted_articles.txt'
 LOCK_FILE = BASE_DIR / 'posted_articles.txt.lock'
 CONFIG_FILE = BASE_DIR / 'config.json'
 FEED_CACHE_FILE = BASE_DIR / 'feed_cache.json'
-
-# URL Whitelist for security (allow known image hosting services)
-ALLOWED_IMAGE_DOMAINS = {
-    'bearblog.dev',
-    'imgur.com',
-    'i.imgur.com',
-    'cloudinary.com',
-    'githubusercontent.com',
-    'fischr.org'
-}
 
 # Session configuration
 session = requests.Session()
@@ -247,23 +248,11 @@ def get_html_content(entry: Any) -> str:
 
 
 def is_safe_image_url(url: str) -> bool:
-    """Validate that the image URL is from an allowed domain."""
+    """Validate that the image URL uses a safe protocol (HTTP/HTTPS)."""
     try:
         parsed = urlparse(url)
-        domain = parsed.netloc.lower()
-
-        # Remove 'www.' prefix for comparison
-        domain = domain.replace('www.', '')
-
-        # Check if domain is in whitelist or is subdomain of allowed domain
-        for allowed in ALLOWED_IMAGE_DOMAINS:
-            if domain == allowed or domain.endswith('.' + allowed):
-                return True
-
-        logger.warning(f"Image URL from untrusted domain rejected: {domain}")
-        return False
-    except Exception as e:
-        logger.warning(f"Error validating image URL: {e}")
+        return parsed.scheme in ('http', 'https')
+    except Exception:
         return False
 
 
@@ -504,7 +493,7 @@ def post_to_mastodon(text: str, img_path: Optional[str], alt_text: str) -> None:
     try:
         mastodon = Mastodon(
             access_token=token,
-            api_base_url='https://mastodon.social'
+            api_base_url=MASTODON_INSTANCE
         )
 
         media_ids = []

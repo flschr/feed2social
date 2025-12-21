@@ -54,7 +54,6 @@ jobs:
           BSKY_PW: ${{ secrets.BSKY_PW }}
           MASTO_TOKEN: ${{ secrets.MASTO_TOKEN }}
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-          RSS_FEED_URL: ${{ secrets.RSS_FEED_URL }}
         run: python social_bot/social_bot.py
 
       - name: Save State
