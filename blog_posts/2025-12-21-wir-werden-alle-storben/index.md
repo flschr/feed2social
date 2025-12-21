@@ -45,8 +45,10 @@ Vollkommen egal, ob meine Prognose eintritt oder nicht, der [Rebound-Effekt](htt
 Dank KI werden wir immer mehr, schneller und effizienter arbeiten. Nur leider wird die Arbeit dadurch nicht weniger werden. Das ist wie bei den immer effizienter werdenden Motoren. Die haben auch nicht dazu geführt, dass Autos weniger Sprit verbrauchen. Stattdessen sind die Blechbüchsen einfach immer größer, schneller und bequemer geworden.
 
 ---
-## Update
+## Nachtrag
 
-mthie hat in seinem Blog auf mein Post [reagiert](https://mthie.com/ist-ai-gekommen-um-zu-bleiben.html). 
+[mthie](https://mastodon.social/@mthie@fedi.mthie.com) hat auf diesen Artikel [reagiert](https://mthie.com/ist-ai-gekommen-um-zu-bleiben.html), und fordert zu Recht mehr technische Präzision, anstatt einfach alles als KI zu labeln.
 
-<div class="infobox-frame info"><div class="infobox-icon"></div><div class="infobox-text">mthi hat in seinem [Artikel](test) </div></div>
+Man kann das natürlich technisch sezieren, aber für die sozioökonomische Wirkung ist die technische Ausprägung zweitrangig. Ob ein Algorithmus nun Muster erkennt (ML), Sprache verarbeitet (LLM) oder Inhalte erstellt (Gen-AI), das Ergebnis sind am Ende immer Effizienzgewinne. Dabei spielt es keine Rolle, ob man das dann "Intelligenz", "Statistik" oder "If-Else-Blöcke" nennt.
+
+Und ja, "a fool with a tool is still a fool". KI macht den Idioten halt heute nur effizienter *:)*
