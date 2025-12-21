@@ -27,12 +27,19 @@ jobs:
         run: pip install -r backup_bot/requirements.txt
 
       - name: Run Backup Bot
+        id: backup
         env:
           BEAR_COOKIE: ${{ secrets.BEAR_COOKIE }}
         run: python backup_bot/backup_bot.py
+        continue-on-error: true  # Continue to commit debug CSV even on failure
 
       - name: Commit and Push Blog Posts
+        if: always()  # Always run to commit debug CSV for inspection
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Automated blog backup [skip ci]"
-          file_pattern: 'blog_posts/** backup_bot/processed_articles.txt'
+          file_pattern: 'blog_posts/** backup_bot/processed_articles.txt backup_bot/last_export.csv'
+
+      - name: Fail if backup failed
+        if: steps.backup.outcome == 'failure'
+        run: exit 1

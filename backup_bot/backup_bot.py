@@ -44,6 +44,7 @@ ALLOWED_IMAGE_DOMAINS = {
 BASE_DIR = Path("blog_posts")
 TRACKING_FILE = Path("backup_bot/processed_articles.txt")
 TEMP_CSV = Path("temp_export.csv")
+DEBUG_CSV = Path("backup_bot/last_export.csv")  # Keep a copy for debugging
 
 # Environment variables
 def normalize_cookie(cookie: Optional[str]) -> Optional[str]:
@@ -369,37 +370,45 @@ def download_csv() -> Path:
                 f"HTTP {response.status_code} error when downloading CSV"
             )
 
-        # Check content type
-        content_type = response.headers.get('Content-Type', '')
-
-        # Peek at first few bytes to detect HTML
-        first_chunk = next(response.iter_content(chunk_size=500), b'')
-
-        if b'<!doctype' in first_chunk.lower() or b'<html' in first_chunk.lower():
-            raise AuthenticationError(
-                "Received HTML instead of CSV (likely login page). "
-                "Your session cookie is invalid or expired. "
-                "Please update the BEAR_COOKIE secret."
-            )
-
-        # Check size limit
+        # Check size limit from header
         content_length = int(response.headers.get('content-length', 0))
         if content_length > MAX_CSV_SIZE:
             raise DownloadError(
                 f"CSV file too large: {content_length} bytes (max: {MAX_CSV_SIZE})"
             )
 
-        # Download with size check
-        total_size = len(first_chunk)
-        with open(TEMP_CSV, 'wb') as f:
-            f.write(first_chunk)
+        # Download using a single iterator to avoid stream issues
+        # Collect all chunks first, then validate and write
+        chunks = []
+        total_size = 0
+        html_checked = False
 
-            for chunk in response.iter_content(chunk_size=8192):
-                total_size += len(chunk)
-                if total_size > MAX_CSV_SIZE:
-                    TEMP_CSV.unlink()
-                    raise DownloadError("CSV download exceeded size limit")
-                f.write(chunk)
+        for chunk in response.iter_content(chunk_size=8192):
+            # Check first chunk for HTML (login page detection)
+            if not html_checked:
+                if b'<!doctype' in chunk.lower() or b'<html' in chunk.lower():
+                    raise AuthenticationError(
+                        "Received HTML instead of CSV (likely login page). "
+                        "Your session cookie is invalid or expired. "
+                        "Please update the BEAR_COOKIE secret."
+                    )
+                html_checked = True
+
+            total_size += len(chunk)
+            if total_size > MAX_CSV_SIZE:
+                raise DownloadError("CSV download exceeded size limit")
+            chunks.append(chunk)
+
+        # Write all chunks to file
+        content = b''.join(chunks)
+        with open(TEMP_CSV, 'wb') as f:
+            f.write(content)
+
+        # Also save a debug copy that will be committed to the repo
+        DEBUG_CSV.parent.mkdir(parents=True, exist_ok=True)
+        with open(DEBUG_CSV, 'wb') as f:
+            f.write(content)
+        logger.info(f"Debug copy saved to: {DEBUG_CSV}")
 
         # Validate minimum size
         if total_size < 100:
@@ -626,17 +635,17 @@ def main() -> None:
         logger.error("     - Value: Just paste the sessionid value")
         logger.error("     - (You can use either 'sessionid=VALUE' or just 'VALUE')")
         logger.error("=" * 70)
-        cleanup_temp_files()
+        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
     except DownloadError as e:
         logger.error(f"Download error: {e}")
-        cleanup_temp_files()
+        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        cleanup_temp_files()
+        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
 
