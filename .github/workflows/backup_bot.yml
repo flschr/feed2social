@@ -6,6 +6,11 @@ on:
   workflow_dispatch:  # Allows manual start
   workflow_call:  # Allows being called from other workflows
 
+# Ensure only one backup runs at a time
+concurrency:
+  group: backup-bot
+  cancel-in-progress: false
+
 jobs:
   backup:
     runs-on: ubuntu-latest
