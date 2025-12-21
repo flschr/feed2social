@@ -37,10 +37,17 @@
     "targets": ["bluesky", "mastodon"]
   },
   {
+    "name": "Ich war wandern!",
+    "url": "https://fischr.org/feed?q=fotos",
+    "include": ["wandern"],
+    "template": "Ich war endlich mal wieder wandern! {link}",
+    "targets": ["bluesky", "mastodon"]
+  },
+  {
     "name": "Alle anderen Blogartikel",
     "url": "https://fischr.org/feed/",
     "include": ["blog"],
-    "exclude": ["ausgelesen","popcornfieber","rezeptvomchef","popcornfieber"],
+    "exclude": ["ausgelesen","popcornfieber","rezeptvomchef","popcornfieber","wandern"],
     "template": "Ich habe da mal was aufgeschrieben. {link}",
     "targets": ["bluesky", "mastodon"]
   }
