@@ -381,6 +381,14 @@ def download_csv() -> Path:
                     raise DownloadError("CSV download exceeded size limit")
                 f.write(chunk)
 
+        # Validate minimum size
+        if total_size < 100:
+            TEMP_CSV.unlink()
+            raise DownloadError(
+                f"Downloaded CSV too small ({total_size} bytes). "
+                "This may indicate an authentication or server error."
+            )
+
         logger.info(f"CSV downloaded successfully ({total_size} bytes)")
         return TEMP_CSV
 
@@ -391,15 +399,22 @@ def download_csv() -> Path:
 def parse_csv(csv_path: Path) -> pd.DataFrame:
     """Parse CSV file with robust error handling."""
     try:
+        # First, check if file is empty or too small
+        file_size = csv_path.stat().st_size
+        if file_size == 0:
+            raise ValueError("CSV file is empty (0 bytes)")
+        if file_size < 100:
+            raise ValueError(f"CSV file suspiciously small ({file_size} bytes)")
+
         df = pd.read_csv(
             csv_path,
             encoding='utf-8-sig',  # Remove BOM (Byte Order Mark) if present
-            sep=None,  # Auto-detect delimiter
             on_bad_lines='warn',  # Warn about bad lines instead of failing
             engine='python',  # Use Python engine for more flexible parsing
-            quoting=1,  # QUOTE_ALL - expect all fields to be quoted
-            escapechar='\\',  # Handle escaped characters
-            doublequote=True  # Handle double quotes
+            sep=',',  # BearBlog uses comma-separated CSV
+            quotechar='"',  # Standard quote character
+            doublequote=True,  # Handle double quotes
+            skipinitialspace=True  # Skip spaces after delimiter
         )
 
         logger.info(f"Parsed CSV: {len(df)} articles found")
@@ -411,6 +426,10 @@ def parse_csv(csv_path: Path) -> pd.DataFrame:
 
         if missing_columns:
             raise ValueError(f"CSV missing required columns: {missing_columns}")
+
+        # Check if DataFrame is empty
+        if len(df) == 0:
+            raise ValueError("CSV file contains no data rows")
 
         return df
 
