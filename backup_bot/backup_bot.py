@@ -426,15 +426,17 @@ def parse_csv(csv_path: Path) -> pd.DataFrame:
         if file_size < 100:
             raise ValueError(f"CSV file suspiciously small ({file_size} bytes)")
 
+        # Use C engine which handles multiline quoted fields correctly
+        # The Python engine has issues with multiline content in quoted fields
         df = pd.read_csv(
             csv_path,
             encoding='utf-8-sig',  # Remove BOM (Byte Order Mark) if present
-            on_bad_lines='warn',  # Warn about bad lines instead of failing
-            engine='python',  # Use Python engine for more flexible parsing
+            engine='c',  # C engine handles multiline quoted fields better
             sep=',',  # BearBlog uses comma-separated CSV
             quotechar='"',  # Standard quote character
             doublequote=True,  # Handle double quotes
-            skipinitialspace=True  # Skip spaces after delimiter
+            skipinitialspace=True,  # Skip spaces after delimiter
+            on_bad_lines='warn'  # Warn about bad lines instead of failing
         )
 
         logger.info(f"Parsed CSV: {len(df)} articles found")
