@@ -49,6 +49,6 @@ Dank KI werden wir immer mehr, schneller und effizienter arbeiten. Nur leider wi
 
 [mthie](https://mastodon.social/@mthie@fedi.mthie.com) hat auf diesen Artikel [reagiert](https://mthie.com/ist-ai-gekommen-um-zu-bleiben.html), und fordert zu Recht mehr technische Präzision, anstatt einfach alles als KI zu labeln.
 
-Man kann das natürlich technisch sezieren, aber für die sozioökonomische Wirkung ist die technische Ausprägung zweitrangig. Ob ein Algorithmus nun Muster erkennt (ML), Sprache verarbeitet (LLM) oder Inhalte erstellt (Gen-AI), das Ergebnis sind am Ende immer Effizienzgewinne. Dabei spielt es keine Rolle, ob man das dann "Intelligenz", "Statistik" oder "If-Else-Blöcke" nennt.
+Man kann das natürlich technisch präziser formulieren, aber für die sozioökonomische Wirkung ist die technische Ausprägung zweitrangig. Ob ein Algorithmus nun Muster erkennt (ML), Sprache verarbeitet (LLM) oder Inhalte erstellt (Gen-AI), das Ergebnis sind am Ende immer Effizienzgewinne. Dabei spielt es keine Rolle, ob das technisch gesehen "Intelligenz", "Statistik" oder eine Sammlung von "If-Else-Blöcken" ist.
 
-Und ja, "a fool with a tool is still a fool". KI macht den Idioten halt heute nur effizienter *:)*
+Und ja, *a fool with a tool is still a fool*. KI sorgt heute eben dafür, dass auch der Fool deutlich effizienter wird. *:)*
