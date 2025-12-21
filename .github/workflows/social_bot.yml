@@ -3,8 +3,8 @@ name: Social Bot
 run-name: ${{ github.event_name == 'repository_dispatch' && '📡 Cloudflare Feed-Update Trigger' || github.event_name == 'schedule' && '⏱️ Scheduled Run' || '👤 Manual Run' }}
 
 on:
-  schedule:
-    - cron: '*/50 * * * *' # Runs every 50 minutes (can be disabled if using external trigger)
+  #schedule:
+  #  - cron: '*/50 * * * *' # Runs every 50 minutes (can be disabled if using external trigger)
   workflow_dispatch: # Allows manual trigger
   repository_dispatch: # Allows external trigger (e.g., from Cloudflare Worker)
     types: [rss_feed_update]
