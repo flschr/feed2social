@@ -15,6 +15,18 @@ The Backup Bot automatically exports all your Bear Blog posts as Markdown files 
 
 ---
 
+## Data Source
+
+The Backup Bot works **independently from the Social Bot's feed configuration**. While the Social Bot uses RSS feeds with custom filters (configured in `config.json`), the Backup Bot takes a different approach:
+
+- **Direct CSV export**: Downloads the complete blog export directly from Bear Blog's dashboard
+- **All published posts**: Backs up every published article, regardless of tags or categories
+- **Highly reliable**: No RSS parsing needed - Bear Blog provides clean, structured CSV data
+
+This means your `config.json` feed settings only affect which posts get shared to social media. The backup always captures your entire blog.
+
+---
+
 ## Configuration
 
 ### Central Config (`config.yaml`)
@@ -78,7 +90,7 @@ Each `index.md` contains:
 
 The backup runs:
 - **Weekly**: Every Monday at midnight UTC (default, feel free to adopt)
-- **After new posts**: Triggered automatically by the Social Bot
+- **After new posts**: When the Social Bot detects new articles in any RSS feed, it triggers the Backup Bot to run afterwards - ensuring your backup stays current
 - **Manually**: Via GitHub Actions → Run workflow
 
 ---
