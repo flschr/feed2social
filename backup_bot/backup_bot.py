@@ -33,6 +33,7 @@ MAX_WORKERS = 5  # Concurrent image downloads
 # Security: Allowed image domains
 ALLOWED_IMAGE_DOMAINS = {
     'bearblog.dev',
+    'digitaloceanspaces.com',  # Bear Blog CDN (bear-images.sfo2.cdn.digitaloceanspaces.com)
     'imgur.com',
     'i.imgur.com',
     'cloudinary.com',
