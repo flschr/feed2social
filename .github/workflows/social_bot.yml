@@ -1,6 +1,6 @@
 name: Social Bot
 
-run-name: ${{ github.event_name == 'repository_dispatch' && '📡 Cloudflare Feed-Update Trigger' || github.event_name == 'schedule' && '⏱️ Scheduled Run' || '👤 Manual Run' }}
+run-name: ${{ github.event_name == 'repository_dispatch' && 'Updated RSS feed detected' || 'Manual social_bot run' }}
 
 on:
   #schedule:
@@ -64,7 +64,7 @@ jobs:
           git config user.email "bot@github.com"
           git add social_bot/posted_articles.txt social_bot/feed_cache.json
           # "|| exit 0" prevents error if there are no changes to commit
-          if git commit -m "Update posted articles and feed cache [skip ci]"; then
+          if git commit -m "Update posted articles and feed cache"; then
             echo "changes=true" >> $GITHUB_OUTPUT
             git push
           else
