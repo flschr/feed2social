@@ -11,9 +11,9 @@ Hey and welcome 👋🏼 This is the powerhouse behind my [Bear Blog](https://be
 ```
 ├── config.yaml              # Central configuration
 ├── bots/
-│   ├── social_bot/          # Social media posting
+│   ├── social_bot/          # Social media posting bot
 │   │   └── config.json      # Feed & template config
-│   └── backup_bot/          # Markdown backup bot
+│   └── backup_bot/          # Bear Blog backup bot
 ├── blog-backup/             # Archived posts (auto-generated)
 └── docs/                    # Documentation
 ```
