@@ -129,12 +129,21 @@ def is_posted(link: str, posted_cache: Set[str]) -> bool:
 
 
 def mark_as_posted(link: str) -> None:
-    """Add a URL to the posted.txt file to avoid duplicate posts."""
+    """Add a URL to the posted.txt file (prepends to keep newest on top)."""
     try:
         with posted_file_lock():
-            with open(POSTED_FILE, 'a', encoding='utf-8') as f:
+            # Read existing entries
+            existing_lines = []
+            if POSTED_FILE.exists():
+                with open(POSTED_FILE, 'r', encoding='utf-8') as f:
+                    existing_lines = f.readlines()
+
+            # Write new entry at the top, followed by existing entries
+            with open(POSTED_FILE, 'w', encoding='utf-8') as f:
                 f.write(link + '\n')
-        logger.info(f"Marked as posted: {link}")
+                f.writelines(existing_lines)
+
+        logger.info(f"Marked as posted (prepended): {link}")
     except Exception as e:
         logger.error(f"Error marking as posted: {e}")
         raise
