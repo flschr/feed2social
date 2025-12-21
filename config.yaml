@@ -12,6 +12,11 @@ blog:
 backup:
   # Directory name for blog post backups (relative to repository root)
   folder: "blog-backup"
+  # Save debug CSV file (last_export.csv) for troubleshooting
+  # WARNING: The CSV contains ALL articles including unpublished drafts!
+  # Only enable this if your repository is private or you're okay with
+  # draft content being visible in version history.
+  save_debug_csv: false
 
 social:
   # Your Mastodon instance URL

@@ -32,9 +32,16 @@ blog:
 
 backup:
   folder: "blog-backup"
+  save_debug_csv: false
 ```
 
-The `backup.folder` setting lets you choose where your blog posts are stored. Default is `blog-backup`.
+| Setting | Description | Default |
+|---------|-------------|---------|
+| `backup.folder` | Directory for blog post backups | `blog-backup` |
+| `backup.save_debug_csv` | Save the raw CSV export for debugging | `false` |
+
+> [!CAUTION]
+> **About `save_debug_csv`**: The CSV export from Bear Blog contains **all articles, including unpublished drafts**. If you enable this option, draft content will be saved to `bots/backup_bot/last_export.csv` and committed to your repository. Only enable this for debugging purposes, and be aware that in a public repository, your unpublished drafts would be visible to anyone (including in git history).
 
 ### GitHub Secret
 

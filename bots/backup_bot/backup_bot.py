@@ -32,6 +32,7 @@ def load_config() -> dict:
 CONFIG = load_config()
 BEARBLOG_USERNAME = CONFIG['blog']['bearblog_username']
 BACKUP_FOLDER = CONFIG.get('backup', {}).get('folder', 'blog-backup')
+SAVE_DEBUG_CSV = CONFIG.get('backup', {}).get('save_debug_csv', False)
 
 # --- CONSTANTS ---
 CSV_URL = f"https://bearblog.dev/{BEARBLOG_USERNAME}/dashboard/settings/?export=true"
@@ -399,11 +400,18 @@ def download_csv() -> Path:
         with open(TEMP_CSV, 'wb') as f:
             f.write(content)
 
-        # Also save a debug copy that will be committed to the repo
-        DEBUG_CSV.parent.mkdir(parents=True, exist_ok=True)
-        with open(DEBUG_CSV, 'wb') as f:
-            f.write(content)
-        logger.info(f"Debug copy saved to: {DEBUG_CSV}")
+        # Optionally save a debug copy (WARNING: contains unpublished drafts!)
+        if SAVE_DEBUG_CSV:
+            DEBUG_CSV.parent.mkdir(parents=True, exist_ok=True)
+            with open(DEBUG_CSV, 'wb') as f:
+                f.write(content)
+            logger.info(f"Debug CSV saved to: {DEBUG_CSV}")
+            logger.warning("Note: Debug CSV contains ALL articles including unpublished drafts!")
+        else:
+            # Remove old debug CSV if it exists (cleanup from previous runs)
+            if DEBUG_CSV.exists():
+                DEBUG_CSV.unlink()
+                logger.info("Removed old debug CSV (save_debug_csv is disabled)")
 
         # Validate minimum size
         if total_size < 100:
