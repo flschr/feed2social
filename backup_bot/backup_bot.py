@@ -198,7 +198,7 @@ def download_file(url: str, folder: Path) -> bool:
 def get_content_hash(row: pd.Series) -> str:
     """
     Creates a secure hash from content AND relevant metadata to detect changes.
-    This ensures that changes to meta_image, title, etc. trigger re-processing.
+    This ensures that changes to meta_image, title, published_date, etc. trigger re-processing.
     """
     # Include content and all metadata that should trigger a re-download
     hash_parts = [
@@ -207,6 +207,7 @@ def get_content_hash(row: pd.Series) -> str:
         str(row.get('title', '')),
         str(row.get('meta description', '')),
         str(row.get('canonical url', '')),
+        str(row.get('published date', '')),
     ]
     combined = '|'.join(hash_parts)
     return hashlib.sha256(combined.encode('utf-8')).hexdigest()
