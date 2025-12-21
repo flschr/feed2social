@@ -119,10 +119,9 @@ Cloudflare Worker (every 1 min)
 
 
 ---
-# `rss-monitor.js`
+### `rss-monitor.js`: Paste everything below as Worker code:
 
-Paste everything below as Worker code:
-
+```
 /**
  * Cloudflare Worker: RSS Feed Monitor
  *
@@ -334,3 +333,4 @@ async function triggerGitHubActions(token, owner, repo, changedFeeds) {
 
   return true;
 }
+```
