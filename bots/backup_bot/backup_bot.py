@@ -1,6 +1,5 @@
 """
 Bear Blog backup automation with GitHub integration.
-Includes security hardening, performance optimizations, and improved error handling.
 """
 
 import pandas as pd

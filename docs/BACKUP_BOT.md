@@ -6,7 +6,7 @@ The Backup Bot automatically exports all your Bear Blog posts as Markdown files 
 
 ## How It Works
 
-1. Downloads your blog's CSV export from Bear Blog
+1. Downloads your blog's CSV export from your Bear Blog dashboard
 2. Parses each published article
 3. Creates a folder per post: `YYYY-MM-DD-slug/`
 4. Saves content as `index.md` with YAML frontmatter
@@ -24,7 +24,7 @@ blog:
   bearblog_username: "your-username"
 
 backup:
-  folder: "blog-backup"  # Customize your backup folder name
+  folder: "blog-backup"
 ```
 
 The `backup.folder` setting lets you choose where your blog posts are stored. Default is `blog-backup`.
@@ -50,6 +50,8 @@ You can use either format:
 - `sessionid=YOUR_VALUE`
 - `YOUR_VALUE` (the prefix is added automatically)
 
+> [!IMPORTANT]  
+> The cookie has a fixed expiration date. Once it invalidates, you must replace the session ID with the current one issued by Bear Blog. With a 3-month lifespan, this update is required roughly four times per year.
 ---
 
 ## Backup Folder Structure
@@ -61,8 +63,8 @@ blog-backup/
 │   └── image.webp
 ├── 2025-01-20-another-post/
 │   ├── index.md
-│   ├── photo1.jpg
-│   └── photo2.jpg
+│   ├── photo1.webp
+│   └── photo2.webp
 └── ...
 ```
 
@@ -75,7 +77,7 @@ Each `index.md` contains:
 ## Scheduling
 
 The backup runs:
-- **Weekly**: Every Monday at midnight UTC
+- **Weekly**: Every Monday at midnight UTC (default, feel free to adopt)
 - **After new posts**: Triggered automatically by the Social Bot
 - **Manually**: Via GitHub Actions → Run workflow
 

@@ -58,14 +58,13 @@ See [Feed Configuration](CONFIGURATION.md) for detailed setup.
 ### Rich Text Support
 - Hashtags are converted to clickable tags
 - Links get proper rich text formatting
-- Bluesky posts include link card previews with OG images
+- Bluesky posts include link card previews with OG images (handled automatically by Mastodon)
 
 ### Smart Filtering
-- Include/exclude posts by keywords in title, hashtags, or categories
+- Include/exclude posts by keywords in title, hashtags/categories
 - Attach first image with ALT text (optional)
 
 ### Efficiency
-- Uses HTTP caching (ETag/Last-Modified) to skip unchanged feeds
 - Tracks posted articles to prevent duplicates
 
 ---

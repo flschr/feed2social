@@ -1,6 +1,5 @@
 """
 Social media bot for automating posts from RSS feeds to Bluesky and Mastodon.
-Includes security hardening, performance optimizations, and improved error handling.
 """
 
 import feedparser

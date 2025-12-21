@@ -111,14 +111,6 @@ Configure these in **Settings → Secrets → Actions**:
 | Secret | Description |
 |--------|-------------|
 | `INDEXNOW_KEY` | API key from [indexnow.org](https://www.indexnow.org) for SEO |
-| `BEAR_COOKIE` | Bear Blog session cookie for backups (format: `sessionid=VALUE`) |
-
-### Getting the Bear Blog Cookie
-
-1. Log in to `https://bearblog.dev/dashboard/`
-2. Open Developer Tools (F12) → Application → Cookies
-3. Copy the `sessionid` value
-4. Add to GitHub Secrets as: `sessionid=YOUR_VALUE`
 
 ---
 
