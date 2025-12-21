@@ -2,8 +2,13 @@ name: Social Bot
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Runs every 50 minutes
+    - cron: '*/50 * * * *' # Runs every 50 minutes
   workflow_dispatch: # Allows manual trigger
+
+# Ensure only one instance runs at a time to prevent duplicate posts
+concurrency:
+  group: social-bot
+  cancel-in-progress: false
 
 permissions:
   contents: write
