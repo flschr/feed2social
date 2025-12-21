@@ -31,8 +31,10 @@ A complete automation system for Bear Blog for my blog (fischr.org) that handles
 
 ```
 bearblog-automation/
+├── config.yaml                # Central configuration (edit this when forking!)
+│
 ├── social_bot/
-│   ├── social_bot.py         # Main social automation script
+│   ├── social_bot.py          # Main social automation script
 │   ├── config.json            # Feed configurations
 │   ├── posted_articles.txt    # Tracking file (auto-generated)
 │   ├── feed_cache.json        # ETag/Last-Modified cache (auto-generated)
@@ -64,7 +66,19 @@ bearblog-automation/
 ### 1. Fork this Repository
 Click **Fork** at the top right to create your own copy.
 
-### 2. Configure Social Bot
+### 2. Edit Central Configuration
+
+Edit `config.yaml` in the repository root:
+
+```yaml
+blog:
+  bearblog_username: "your-username"  # Your Bear Blog username
+
+social:
+  mastodon_instance: "https://mastodon.social"  # Your Mastodon instance
+```
+
+### 3. Configure Social Bot Feeds
 
 Edit `social_bot/config.json` to match your feeds. You can configure multiple feeds with different rules:
 
@@ -105,7 +119,7 @@ Edit `social_bot/config.json` to match your feeds. You can configure multiple fe
 - Content is automatically truncated (300 chars for BlueSky, 500 for Mastodon)
 - Hashtags in templates are converted to native tags on BlueSky
 
-### 3. Configure GitHub Secrets
+### 4. Configure GitHub Secrets
 
 Go to **Settings → Secrets and variables → Actions** and add:
 
@@ -127,16 +141,6 @@ Go to **Settings → Secrets and variables → Actions** and add:
 2. Open Developer Tools (F12) → Application/Storage → Cookies
 3. Copy the `sessionid` value
 4. Add to GitHub Secrets as: `sessionid=YOUR_VALUE`
-
-### 4. Update Backup Bot Configuration
-
-Edit `backup_bot/backup_bot.py` and update:
-
-```python
-CSV_URL = "https://bearblog.dev/YOUR_BLOG/dashboard/settings/?export=true"
-```
-
-If you want to customize allowed image domains, edit the `ALLOWED_IMAGE_DOMAINS` set in both scripts.
 
 ### 5. Enable GitHub Actions
 
