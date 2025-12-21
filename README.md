@@ -18,7 +18,7 @@ Hey and welcome 👋🏼 This is the powerhouse behind my [Bear Blog](https://be
 └── docs/                    # Documentation
 ```
 
-## Fork & Set Up Your Own
+## Setup your own (Bear) Blog Automation
 
 Want to use this for your blog? Here's the path:
 
