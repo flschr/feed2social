@@ -21,6 +21,20 @@ jobs:
     outputs:
       changes: ${{ steps.save_state.outputs.changes }}
     steps:
+      - name: Show Trigger Info
+        run: |
+          echo "🚀 Workflow triggered by: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "📡 Triggered by Cloudflare Worker RSS Monitor"
+            echo "🔔 Event type: ${{ github.event.action }}"
+            echo "📋 Changed feeds: ${{ toJson(github.event.client_payload.feeds) }}"
+            echo "⏰ Triggered at: ${{ github.event.client_payload.triggered_at }}"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "⏱️ Triggered by scheduled cron job"
+          else
+            echo "👤 Manually triggered"
+          fi
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
