@@ -1,4 +1,4 @@
-# Cloudflare Worker Setup
+# Cloudflare Worker Setup (optional)
 
 Use a Cloudflare Worker to trigger the Social Bot **only when RSS feeds actually change**.
 
