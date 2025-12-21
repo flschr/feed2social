@@ -1,12 +1,14 @@
 # (Bear) Blog Automation for fischr.org
 
-Hey and welcome 👋🏼 This is the powerhouse behind my [Bear Blog](https://bearblog.dev)-powered website [fischr.org](https://fischr.org). Whenever I publish a new article, this repository automatically:
+Hey and welcome 👋🏼 This is the powerhouse behind my [Bear Blog](https://bearblog.dev)-powered website [fischr.org](https://fischr.org). Whenever I publish a new article, this repository automatically
 
-- **Posts to social media** — shares the article on Mastodon and Bluesky with images, hashtags, and rich text
-- **Backs up everything** — archives all posts as Markdown files with images right here in this repo
-- **Pings search engines** — submits to IndexNow for faster indexing
+- **posts the article to Mastodon and Bluesky**, with a individual template based on the content of the article
+- **backs up everything** (new or changed) as Markdown files with images right here in this repo
+- and **pings search engines** for faster indexing.
 
-If you're running a Bear Blog (or any blog with an RSS feed) and want similar automation, feel free to fork this repo and adapt it to your needs. Read on to see how it works!
+If you are running a Bear Blog (or any blog with an RSS feed) and want similar automation, feel free to fork this repo and adapt it to your needs. Read on to see how it works!
+
+---
 
 ## How It Works
 
