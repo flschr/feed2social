@@ -38,7 +38,7 @@ social:
 
 ### 2. Configure your feeds
 
-Edit `bots/social_bot/config.json` to point to your RSS feeds. See the [Configuration Guide](docs/CONFIGURATION.md) for details.
+Edit `bots/social_bot/config.json` to point to your RSS feeds. See the [Social Bot documentation](docs/SOCIAL_BOT.md) for details.
 
 ### 3. Add GitHub Secrets
 
@@ -71,9 +71,8 @@ Go to the **Actions** tab and enable workflows. Done!
 
 ## Documentation
 
-- [Social Bot](docs/SOCIAL_BOT.md) - Automatic social media posting
+- [Social Bot](docs/SOCIAL_BOT.md) - Automatic social media posting & feed configuration
 - [Backup Bot](docs/BACKUP_BOT.md) - Automatic blog backups
-- [Feed Configuration](docs/CONFIGURATION.md) - Configure RSS feeds and templates
 - [Cloudflare Worker](docs/CLOUDFLARE_WORKER.md) - Instant trigger setup *(optional)*
 
 ## License
