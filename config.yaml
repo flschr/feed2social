@@ -12,18 +12,3 @@ blog:
 social:
   # Your Mastodon instance URL
   mastodon_instance: "https://mastodon.social"
-
-# =============================================================================
-# Template Variables for social_bot/config.json
-# =============================================================================
-# Use these placeholders in the "template" field:
-#
-#   {title}   - Post title
-#   {link}    - URL to the blog post
-#   {content} - Cleaned text content (auto-truncated: 300 chars BlueSky, 500 Mastodon)
-#
-# Examples:
-#   "New post: {title} {link}"
-#   "{content} #photography"
-#   "Just published: {title}\n\n{link}"
-# =============================================================================
