@@ -3,7 +3,7 @@ uid: PQNigSmbeKnpoHCjdIMb
 title: Ich fühle mich noch gar nicht so alt
 slug: ich-fuhle-mich-noch-gar-nicht-so-alt
 alias: ""
-published_date: "2025-12-22T09:00:12.540252+00:00"
+published_date: "2025-12-22T09:00:00+00:00"
 all_tags: "[\"blog\", \"sehrprivat\"]"
 publish: "True"
 make_discoverable: "True"
@@ -13,12 +13,12 @@ meta_description: ""
 meta_image: "https://bear-images.sfo2.cdn.digitaloceanspaces.com/fischr/renefischer-mit-schiebermutze.webp"
 lang: de
 class_name: ""
-first_published_at: "2025-12-22T09:00:12.540252+00:00"
+first_published_at: "2025-12-22T09:00:00+00:00"
 ---
 
 Mir ist ziemlich egal, wie alt ich bin. Wenn ich jemandem begegne, der mich noch nicht kennt, werde ich meist jünger geschätzt als ich bin. Ich bin nicht eitel genug, als dass mir das irgendwas bedeuten würde 10-15 Jahre jünger geschätzt zu werden. Meistens denke ich dann, dass die mich schätzende Person, ziemlich schlecht schätzen kann.
 
-Am Ende kommt es ja auch eher darauf an, wie gesund der Körper ist, in dem man wohnt. Und hier habe ich in den letzten Monaten leider ein paar ungesunde Angewohnheiten einziehen lassen, die ich dringend wieder ändern muss.
+Am Ende kommt es ja auch eher darauf an, wie jung und gesund der Körper ist, in dem man wohnt. Und hier habe ich in den letzten Monaten leider ein paar ungesunde Angewohnheiten einziehen lassen, die ich dringend wieder ändern muss.
 
 Aber zweimal im Jahr kommt mir dann doch mein Alter in den Sinn. Meistens kurz vor dem Jahreswechsel nach dem Motto "Huihh! Nächstes Jahr wirst du schon so viele Jahre alt sein.". Da der nächste Geburtstag zum Jahresende aber noch eine Weile hin ist, ist der Gedanke meistens schnell wieder verflogen.
 
