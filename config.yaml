@@ -23,7 +23,7 @@ backup:
   # This setting is ONLY for non-image files like PDFs, EPUBs, ZIPs, etc.
   linked_files:
     # Set to true to enable downloading of linked files
-    enabled: false
+    enabled: true
     # Only download files with these extensions (case-insensitive)
     allowed_extensions:
       - pdf
@@ -32,6 +32,8 @@ backup:
     # Only download from these domains (for security)
     allowed_domains:
       - "bear-images.sfo2.cdn.digitaloceanspaces.com"
+      - "fischr.org"
+      - "gaehn.org"
 
 social:
   # Your Mastodon instance URL
