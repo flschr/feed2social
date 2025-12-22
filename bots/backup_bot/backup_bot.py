@@ -43,6 +43,12 @@ BEARBLOG_USERNAME = CONFIG['blog']['bearblog_username']
 BACKUP_FOLDER = CONFIG.get('backup', {}).get('folder', 'blog-backup')
 SAVE_DEBUG_CSV = CONFIG.get('backup', {}).get('save_debug_csv', False)
 
+# Linked files configuration
+LINKED_FILES_CONFIG = CONFIG.get('backup', {}).get('linked_files', {})
+LINKED_FILES_ENABLED = LINKED_FILES_CONFIG.get('enabled', False)
+LINKED_FILES_EXTENSIONS = [ext.lower() for ext in LINKED_FILES_CONFIG.get('allowed_extensions', [])]
+LINKED_FILES_DOMAINS = [d.lower() for d in LINKED_FILES_CONFIG.get('allowed_domains', [])]
+
 # --- CONSTANTS ---
 CSV_URL = f"https://bearblog.dev/{BEARBLOG_USERNAME}/dashboard/settings/?export=true"
 
@@ -244,21 +250,115 @@ def safe_yaml_string(value: str) -> str:
         return value
 
 
+def strip_code_blocks(content: str) -> str:
+    """
+    Remove fenced code blocks from content before extracting URLs.
+    This prevents downloading files referenced in code examples.
+    Handles both ``` and ~~~ style fenced blocks.
+    """
+    # Remove fenced code blocks (``` or ~~~)
+    content = re.sub(r'```[\s\S]*?```', '', content)
+    content = re.sub(r'~~~[\s\S]*?~~~', '', content)
+    # Remove inline code (but keep content for URL extraction safety)
+    # We don't remove inline code as it rarely contains full URLs
+    return content
+
+
+def is_allowed_linked_file(url: str) -> bool:
+    """
+    Check if a URL points to an allowed linked file based on extension and domain.
+    Returns True if the file should be downloaded.
+    """
+    if not LINKED_FILES_ENABLED:
+        return False
+
+    parsed = urlparse(url)
+    domain = parsed.netloc.lower()
+    path = parsed.path.lower()
+
+    # Check domain whitelist
+    domain_allowed = any(allowed in domain for allowed in LINKED_FILES_DOMAINS)
+    if not domain_allowed:
+        return False
+
+    # Check extension whitelist
+    extension = path.rsplit('.', 1)[-1] if '.' in path else ''
+    if extension not in LINKED_FILES_EXTENSIONS:
+        return False
+
+    return True
+
+
+def download_linked_files(content: str, post_dir: Path) -> None:
+    """
+    Download allowed linked files (PDFs, documents, etc.) from whitelisted domains.
+    Only runs if linked_files.enabled is true in config.
+    Skips files that already exist in the post directory.
+    """
+    if not LINKED_FILES_ENABLED:
+        return
+
+    # Strip code blocks to avoid downloading files from code examples
+    clean_content = strip_code_blocks(content)
+
+    # Find all linked URLs
+    linked_urls = set()
+
+    # Markdown links: [text](url)
+    markdown_links = re.findall(r'\[.*?\]\((https?://[^\)]+)\)', clean_content)
+    linked_urls.update(markdown_links)
+
+    # HTML links: <a href="url">
+    html_links = re.findall(r'<a[^>]+href=["\']([^"\']+)["\']', clean_content, re.IGNORECASE)
+    linked_urls.update(html_links)
+
+    # Filter to allowed files only
+    allowed_urls = [url for url in linked_urls if is_allowed_linked_file(url)]
+
+    if not allowed_urls:
+        return
+
+    logger.info(f"Found {len(allowed_urls)} linked files to check")
+
+    for url in allowed_urls:
+        # Extract filename
+        url_path = urlparse(url).path
+        file_name = url_path.split("/")[-1].split("?")[0]
+        if not file_name:
+            continue
+
+        file_name = sanitize_filename(file_name)
+        target_path = post_dir / file_name
+
+        # Skip if file already exists
+        if target_path.exists():
+            logger.debug(f"Linked file already exists, skipping: {file_name}")
+            continue
+
+        # Download the file
+        logger.info(f"Downloading linked file: {file_name}")
+        download_file_to_folder(url, post_dir)
+
+
 def download_images_concurrent(content: str, post_dir: Path) -> None:
     """
     Download all images from content concurrently for better performance.
     Extracts URLs from both Markdown and HTML formats.
     Only downloads from <img> tags, NOT from <iframe> or other elements.
+    Code blocks are stripped to prevent downloading files from code examples.
     """
+    # Strip code blocks first to avoid false positives
+    clean_content = strip_code_blocks(content)
+
     # Find all image URLs (Markdown ![]() and HTML <img src="">)
     img_urls = set()
 
     # Markdown format: ![alt](url)
-    markdown_imgs = re.findall(r'!\[.*?\]\((https?://[^\)]+)\)', content)
+    markdown_imgs = re.findall(r'!\[.*?\]\((https?://[^\)]+)\)', clean_content)
     img_urls.update(markdown_imgs)
 
     # HTML format: <img src="url"> - specifically target img tags only
-    html_imgs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', content, re.IGNORECASE)
+    html_imgs = re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', clean_content, re.IGNORECASE)
     img_urls.update(html_imgs)
 
     if not img_urls:
@@ -460,10 +560,25 @@ def process_article(row: pd.Series, df: pd.DataFrame, processed_articles: Dict[s
         # Calculate content hash (includes content + metadata)
         content_hash = get_content_hash(row)
 
+        # Format date for folder name (needed for all paths)
+        try:
+            dt = datetime.fromisoformat(pub_date_str.replace('Z', '+00:00'))
+            date_prefix = dt.strftime("%Y-%m-%d")
+        except Exception as e:
+            logger.warning(f"Error parsing date '{pub_date_str}': {e}")
+            date_prefix = "0000-00-00"
+
+        # Create folder path: YYYY-MM-DD-title
+        folder_name = f"{date_prefix}-{clean_filename(slug)}"
+        post_dir = BASE_DIR / folder_name
+
         # Check if article was already processed
         if uid in processed_articles:
             if processed_articles[uid] == content_hash:
-                # Article unchanged - skip
+                # Article unchanged - but still check for linked files if enabled
+                # This allows downloading linked files for existing articles
+                if LINKED_FILES_ENABLED and post_dir.exists():
+                    download_linked_files(content, post_dir)
                 return ('skipped', 0)
             else:
                 # Article changed - reprocess
@@ -475,21 +590,14 @@ def process_article(row: pd.Series, df: pd.DataFrame, processed_articles: Dict[s
             status = 'new'
             change_type = 1
 
-        # Format date for folder name
-        try:
-            dt = datetime.fromisoformat(pub_date_str.replace('Z', '+00:00'))
-            date_prefix = dt.strftime("%Y-%m-%d")
-        except Exception as e:
-            logger.warning(f"Error parsing date '{pub_date_str}': {e}")
-            date_prefix = "0000-00-00"
-
-        # Create folder: YYYY-MM-DD-title
-        folder_name = f"{date_prefix}-{clean_filename(slug)}"
-        post_dir = BASE_DIR / folder_name
+        # Create folder
         post_dir.mkdir(parents=True, exist_ok=True)
 
         # Download images concurrently (from content)
         download_images_concurrent(content, post_dir)
+
+        # Download linked files if enabled (PDFs, etc.)
+        download_linked_files(content, post_dir)
 
         # Create index.md with proper YAML frontmatter
         with open(post_dir / "index.md", "w", encoding="utf-8") as f:

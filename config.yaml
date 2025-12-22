@@ -18,6 +18,21 @@ backup:
   # draft content being visible in version history.
   save_debug_csv: false
 
+  # Linked files backup (PDFs, documents, etc.)
+  # Note: Images are ALWAYS downloaded in all common formats (jpg, png, webp, gif, etc.)
+  # This setting is ONLY for non-image files like PDFs, EPUBs, ZIPs, etc.
+  linked_files:
+    # Set to true to enable downloading of linked files
+    enabled: false
+    # Only download files with these extensions (case-insensitive)
+    allowed_extensions:
+      - pdf
+      - epub
+      - zip
+    # Only download from these domains (for security)
+    allowed_domains:
+      - "bear-images.sfo2.cdn.digitaloceanspaces.com"
+
 social:
   # Your Mastodon instance URL
   mastodon_instance: "https://mastodon.social"
