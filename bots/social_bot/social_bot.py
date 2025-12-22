@@ -6,20 +6,27 @@ import feedparser
 import json
 import os
 import re
-import requests
 import logging
 import tempfile
-import hashlib
-import yaml
 from typing import Optional, Dict, List, Set, Any
 from pathlib import Path
 from bs4 import BeautifulSoup
 from atproto import Client, client_utils, models
 from mastodon import Mastodon
-from contextlib import contextmanager
-from time import sleep
-from urllib.parse import urlparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# Import shared utilities
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from shared import (
+    CONFIG,
+    AuthenticationError,
+    ConfigurationError,
+    REQUEST_TIMEOUT,
+    MAX_IMAGE_SIZE,
+    is_safe_url,
+    create_session,
+    FileLock,
+)
 
 # Setup Logging
 logging.basicConfig(
@@ -28,23 +35,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- LOAD CONFIG ---
-def load_config() -> dict:
-    """Load configuration from central config.yaml file."""
-    config_path = Path(__file__).parent.parent.parent / "config.yaml"
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
-CONFIG = load_config()
+# --- CONFIG ---
 MASTODON_INSTANCE = CONFIG['social']['mastodon_instance']
 
 # --- CONSTANTS ---
-MAX_IMAGE_SIZE = 5_000_000
-REQUEST_TIMEOUT = 10
-MAX_RETRIES = 3
-RETRY_BACKOFF = 2  # Seconds
-MAX_WORKERS = 3  # For concurrent operations
-
 PLATFORM_BLUESKY = "bluesky"
 PLATFORM_MASTODON = "mastodon"
 
@@ -54,57 +48,8 @@ LOCK_FILE = BASE_DIR / 'posted_articles.txt.lock'
 CONFIG_FILE = BASE_DIR / 'config.json'
 FEED_CACHE_FILE = BASE_DIR / 'feed_cache.json'
 
-# Session configuration
-session = requests.Session()
-session.headers.update({'User-Agent': 'feed2social/2.0'})
-# Connection pooling for better performance
-adapter = requests.adapters.HTTPAdapter(
-    pool_connections=10,
-    pool_maxsize=20,
-    max_retries=requests.adapters.Retry(
-        total=MAX_RETRIES,
-        backoff_factor=RETRY_BACKOFF,
-        status_forcelist=[500, 502, 503, 504]
-    )
-)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
-
-
-class ConfigurationError(Exception):
-    """Raised when configuration is invalid."""
-    pass
-
-
-class AuthenticationError(Exception):
-    """Raised when authentication fails."""
-    pass
-
-
-@contextmanager
-def posted_file_lock():
-    """
-    Simple file lock to prevent concurrent write access to the posted file.
-    Uses exponential backoff for retries.
-    """
-    retry = 0
-    max_retries = 10
-    backoff = 0.5
-
-    while LOCK_FILE.exists() and retry < max_retries:
-        sleep(backoff)
-        backoff *= 1.5  # Exponential backoff
-        retry += 1
-
-    if LOCK_FILE.exists():
-        raise TimeoutError(f"Could not acquire lock after {max_retries} retries")
-
-    try:
-        LOCK_FILE.touch()
-        yield
-    finally:
-        if LOCK_FILE.exists():
-            LOCK_FILE.unlink()
+# Create session with connection pooling
+session = create_session('feed2social/2.0')
 
 
 def load_feed_cache() -> Dict[str, Dict[str, str]]:
@@ -140,7 +85,6 @@ def check_feed_changed(feed_url: str, cache: Dict[str, Dict[str, str]]) -> tuple
         (has_changed, new_headers): Tuple of boolean and dict with new cache headers
     """
     try:
-        # Make HEAD request to check for changes
         response = session.head(feed_url, timeout=REQUEST_TIMEOUT, allow_redirects=True)
         response.raise_for_status()
 
@@ -149,35 +93,27 @@ def check_feed_changed(feed_url: str, cache: Dict[str, Dict[str, str]]) -> tuple
             'last-modified': response.headers.get('Last-Modified', '')
         }
 
-        # If we have no cached headers, assume it changed
         if feed_url not in cache:
             logger.info(f"No cache for {feed_url}, will fetch")
             return True, new_headers
 
         cached_headers = cache[feed_url]
 
-        # Compare ETag first (more reliable)
         if new_headers['etag'] and cached_headers.get('etag'):
             if new_headers['etag'] == cached_headers['etag']:
                 logger.info(f"Feed unchanged (ETag match): {feed_url}")
                 return False, new_headers
 
-        # Compare Last-Modified
         if new_headers['last-modified'] and cached_headers.get('last-modified'):
             if new_headers['last-modified'] == cached_headers['last-modified']:
                 logger.info(f"Feed unchanged (Last-Modified match): {feed_url}")
                 return False, new_headers
 
-        # If neither header is present or they differ, assume changed
         logger.info(f"Feed changed or no cache headers: {feed_url}")
         return True, new_headers
 
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"Error checking feed headers for {feed_url}: {e}")
-        # On error, assume changed to avoid missing updates
-        return True, {}
     except Exception as e:
-        logger.error(f"Unexpected error checking feed: {e}")
+        logger.warning(f"Error checking feed headers for {feed_url}: {e}")
         return True, {}
 
 
@@ -190,7 +126,7 @@ def load_posted_articles() -> Set[str]:
         return set()
 
     try:
-        with posted_file_lock():
+        with FileLock(LOCK_FILE):
             with open(POSTED_FILE, 'r', encoding='utf-8') as f:
                 return {line.strip() for line in f if line.strip()}
     except Exception as e:
@@ -206,14 +142,12 @@ def is_posted(link: str, posted_cache: Set[str]) -> bool:
 def mark_as_posted(link: str) -> None:
     """Add a URL to the posted.txt file (prepends to keep newest on top)."""
     try:
-        with posted_file_lock():
-            # Read existing entries
+        with FileLock(LOCK_FILE):
             existing_lines = []
             if POSTED_FILE.exists():
                 with open(POSTED_FILE, 'r', encoding='utf-8') as f:
                     existing_lines = f.readlines()
 
-            # Write new entry at the top, followed by existing entries
             with open(POSTED_FILE, 'w', encoding='utf-8') as f:
                 f.write(link + '\n')
                 f.writelines(existing_lines)
@@ -230,29 +164,16 @@ def get_html_content(entry: Any) -> str:
         html = entry.content[0].value if hasattr(entry, 'content') else entry.get('summary', '')
         soup = BeautifulSoup(html, "html.parser")
 
-        # Remove all image tags
         for img in soup.find_all('img'):
             img.decompose()
 
-        # Extract plain text with a space separator
         text = soup.get_text(separator=' ')
-
-        # Whitespace cleaning
-        text = re.sub(r'[ \t]+', ' ', text)  # Multiple spaces/tabs -> single space
-        text = re.sub(r'\n\s*\n', '\n\n', text)  # Multiple newlines -> double newline
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r'\n\s*\n', '\n\n', text)
         return text.strip()
     except Exception as e:
         logger.warning(f"Error extracting HTML content: {e}")
         return ""
-
-
-def is_safe_image_url(url: str) -> bool:
-    """Validate that the image URL uses a safe protocol (HTTP/HTTPS)."""
-    try:
-        parsed = urlparse(url)
-        return parsed.scheme in ('http', 'https')
-    except Exception:
-        return False
 
 
 def get_first_image_data(entry: Any) -> Optional[Dict[str, str]]:
@@ -265,8 +186,7 @@ def get_first_image_data(entry: Any) -> Optional[Dict[str, str]]:
         if img and img.get('src'):
             img_url = img.get('src')
 
-            # Security: validate URL
-            if not is_safe_image_url(img_url):
+            if not is_safe_url(img_url):
                 return None
 
             return {
@@ -283,15 +203,12 @@ def download_image(img_url: str) -> Optional[str]:
     """
     Download an image to a temporary file while respecting size limits.
     Returns the path to the temporary file, or None on failure.
-    Uses secure temporary file creation.
     """
     try:
-        # Security check
-        if not is_safe_image_url(img_url):
+        if not is_safe_url(img_url):
             logger.warning(f"Rejected unsafe image URL: {img_url}")
             return None
 
-        # Create secure temporary file
         temp_file = tempfile.NamedTemporaryFile(
             mode='wb',
             suffix='.jpg',
@@ -303,7 +220,6 @@ def download_image(img_url: str) -> Optional[str]:
             r = session.get(img_url, timeout=REQUEST_TIMEOUT, stream=True)
             r.raise_for_status()
 
-            # Check content length
             content_length = int(r.headers.get('content-length', 0))
             if content_length > MAX_IMAGE_SIZE:
                 logger.warning(f"Image too large: {content_length} bytes")
@@ -311,7 +227,6 @@ def download_image(img_url: str) -> Optional[str]:
                 os.unlink(temp_file.name)
                 return None
 
-            # Download with size check
             total_downloaded = 0
             for chunk in r.iter_content(chunk_size=8192):
                 total_downloaded += len(chunk)
@@ -331,11 +246,8 @@ def download_image(img_url: str) -> Optional[str]:
                 os.unlink(temp_file.name)
             raise
 
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"Error downloading image from {img_url}: {e}")
-        return None
     except Exception as e:
-        logger.error(f"Unexpected error downloading image: {e}")
+        logger.warning(f"Error downloading image from {img_url}: {e}")
         return None
 
 
@@ -356,11 +268,8 @@ def get_og_metadata(url: str) -> Optional[Dict[str, Optional[str]]]:
             "description": desc_tag["content"] if desc_tag else "",
             "image_url": img_tag["content"] if img_tag else None
         }
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"Error fetching OG metadata from {url}: {e}")
-        return None
     except Exception as e:
-        logger.error(f"Unexpected error fetching OG metadata: {e}")
+        logger.warning(f"Error fetching OG metadata from {url}: {e}")
         return None
 
 
@@ -384,14 +293,12 @@ def submit_to_indexnow(url: str) -> None:
         )
         response.raise_for_status()
         logger.info(f"IndexNow success for {url}")
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"IndexNow request failed: {e}")
     except Exception as e:
-        logger.error(f"Unexpected error in IndexNow submission: {e}")
+        logger.warning(f"IndexNow request failed: {e}")
 
 
 def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Optional[str] = None) -> None:
-    """Post rich text to Bluesky, converting hashtags and links into clickable facets with link card preview."""
+    """Post rich text to Bluesky with link card preview."""
     handle = os.getenv('BSKY_HANDLE')
     password = os.getenv('BSKY_PW')
 
@@ -402,10 +309,8 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Opt
         client = Client()
         client.login(handle, password)
 
-        # TextBuilder automatically handles rich text facets (hashtags, links)
         tb = client_utils.TextBuilder()
 
-        # Split text to identify tags and links for rich text processing
         words = text.split(' ')
         for i, word in enumerate(words):
             if word.startswith('#') and len(word) > 1:
@@ -416,18 +321,15 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Opt
             else:
                 tb.text(word)
 
-            # Add space back if it's not the last word
             if i < len(words) - 1:
                 tb.text(' ')
 
         embed = None
 
-        # Prefer external link card with OG preview over image embed
         if link:
             try:
                 og_data = get_og_metadata(link)
                 if og_data:
-                    # Download OG image if available
                     thumb_blob = None
                     if og_data.get('image_url'):
                         og_img_path = download_image(og_data['image_url'])
@@ -438,14 +340,12 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Opt
                             except Exception as e:
                                 logger.warning(f"Error uploading OG image: {e}")
                             finally:
-                                # Clean up OG image
                                 if og_img_path and os.path.exists(og_img_path):
                                     try:
                                         os.unlink(og_img_path)
                                     except Exception as e:
                                         logger.warning(f"Error removing OG image file: {e}")
 
-                    # Create external link card embed
                     embed = models.AppBskyEmbedExternal.Main(
                         external=models.AppBskyEmbedExternal.External(
                             title=og_data.get('title', 'Blog post')[:300],
@@ -457,9 +357,7 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Opt
                     logger.info("Created external link card embed for Bluesky")
             except Exception as e:
                 logger.warning(f"Error creating external embed: {e}")
-                # Fall back to image embed if link card fails
 
-        # If no link card was created, use image embed as fallback
         if embed is None and img_path and os.path.exists(img_path):
             try:
                 with open(img_path, 'rb') as f:
@@ -472,7 +370,6 @@ def post_to_bluesky(text: str, img_path: Optional[str], alt_text: str, link: Opt
                     )
             except Exception as e:
                 logger.error(f"Error uploading image to Bluesky: {e}")
-                # Continue without image
 
         client.send_post(text=tb, embed=embed)
         logger.info("Bluesky post success")
@@ -502,7 +399,6 @@ def post_to_mastodon(text: str, img_path: Optional[str], alt_text: str) -> None:
                 media_ids.append(media['id'])
             except Exception as e:
                 logger.error(f"Error uploading image to Mastodon: {e}")
-                # Continue without image
 
         mastodon.status_post(
             status=text[:500],
@@ -572,28 +468,23 @@ def process_entry(
     if is_posted(entry.link, posted_cache):
         return False
 
-    # --- PRECISE FILTERING (Title, Text-Hashtags & RSS-Categories only) ---
     content_html = (
         entry.content[0].value if hasattr(entry, 'content')
         else entry.get('summary', '')
     )
 
-    # Extract hashtags from text content
     found_hashtags = " ".join(re.findall(r'#\w+', content_html))
 
-    # Extract categories (tags) provided by the Bear Blog RSS feed
     rss_categories = ""
     if hasattr(entry, 'tags'):
         rss_categories = " ".join([
             tag.term for tag in entry.tags if hasattr(tag, 'term')
         ])
 
-    # Combine metadata for inclusion/exclusion checks
     check_string = (
         entry.title + " " + found_hashtags + " " + rss_categories
     ).lower()
 
-    # Apply filters
     if any(w.lower() in check_string for w in cfg.get('exclude', [])):
         logger.debug(f"Skipping (excluded): {entry.title}")
         return False
@@ -606,7 +497,6 @@ def process_entry(
 
     logger.info(f"Processing: {entry.title}")
 
-    # Extract image if needed
     img_data = None
     img_path = None
     alt_text = ""
@@ -619,7 +509,6 @@ def process_entry(
 
     clean_content = get_html_content(entry)
 
-    # Format message using the template from config.json
     msg = cfg['template'].format(
         title=entry.title,
         link=entry.link,
@@ -627,19 +516,16 @@ def process_entry(
     )
 
     try:
-        # Post to configured platforms
         if PLATFORM_BLUESKY in cfg.get('targets', []):
             post_to_bluesky(msg, img_path, alt_text, link=entry.link)
 
         if PLATFORM_MASTODON in cfg.get('targets', []):
             post_to_mastodon(msg, img_path, alt_text)
 
-        # Submit to search engines
         submit_to_indexnow(entry.link)
 
-        # Mark as posted
         mark_as_posted(entry.link)
-        posted_cache.add(entry.link)  # Update in-memory cache
+        posted_cache.add(entry.link)
 
         return True
 
@@ -648,7 +534,6 @@ def process_entry(
         return False
 
     finally:
-        # Clean up temporary image file
         if img_path and os.path.exists(img_path):
             try:
                 os.unlink(img_path)
@@ -661,7 +546,6 @@ def run() -> None:
     logger.info("=== Social Bot Start ===")
 
     try:
-        # Load and validate configuration
         if not CONFIG_FILE.exists():
             raise ConfigurationError(f"Config file not found: {CONFIG_FILE}")
 
@@ -671,15 +555,12 @@ def run() -> None:
         validate_config(config)
         validate_credentials(config)
 
-        # Load posted articles cache
         posted_cache = load_posted_articles()
         logger.info(f"Loaded {len(posted_cache)} previously posted articles")
 
-        # Load feed cache for ETag/Last-Modified tracking
         feed_cache = load_feed_cache()
         cache_updated = False
 
-        # Process feeds
         total_processed = 0
         total_entries = 0
         feeds_checked = 0
@@ -690,7 +571,6 @@ def run() -> None:
                 feed_url = cfg['url']
                 feeds_checked += 1
 
-                # Check if feed has changed using HEAD request
                 has_changed, new_headers = check_feed_changed(feed_url, feed_cache)
 
                 if not has_changed:
@@ -698,7 +578,6 @@ def run() -> None:
                     feeds_skipped += 1
                     continue
 
-                # Feed has changed, fetch full content
                 logger.info(f"Fetching feed: {feed_url}")
                 response = session.get(feed_url, timeout=REQUEST_TIMEOUT)
                 response.raise_for_status()
@@ -715,19 +594,14 @@ def run() -> None:
                     if process_entry(entry, cfg, posted_cache):
                         total_processed += 1
 
-                # Update cache with new headers after successful fetch
                 if new_headers:
                     feed_cache[feed_url] = new_headers
                     cache_updated = True
 
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error fetching feed {cfg['url']}: {e}")
-                continue
             except Exception as e:
-                logger.error(f"Unexpected error processing feed {cfg['url']}: {e}")
+                logger.error(f"Error processing feed {cfg['url']}: {e}")
                 continue
 
-        # Save updated cache
         if cache_updated:
             save_feed_cache(feed_cache)
             logger.info("Feed cache updated")

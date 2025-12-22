@@ -3,7 +3,6 @@ Bear Blog backup automation with GitHub integration.
 """
 
 import pandas as pd
-import requests
 import os
 import re
 import hashlib
@@ -13,7 +12,24 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import yaml
+
+# Import shared utilities
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from shared import (
+    CONFIG,
+    AuthenticationError,
+    DownloadError,
+    REQUEST_TIMEOUT,
+    MAX_IMAGE_SIZE,
+    MAX_CSV_SIZE,
+    MAX_WORKERS,
+    is_safe_url,
+    sanitize_filename,
+    clean_filename,
+    create_session,
+    FileLock,
+)
 
 # Setup Logging
 logging.basicConfig(
@@ -22,32 +38,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- LOAD CONFIG ---
-def load_config() -> dict:
-    """Load configuration from central config.yaml file."""
-    config_path = Path(__file__).parent.parent.parent / "config.yaml"
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
-CONFIG = load_config()
+# --- CONFIG ---
 BEARBLOG_USERNAME = CONFIG['blog']['bearblog_username']
 BACKUP_FOLDER = CONFIG.get('backup', {}).get('folder', 'blog-backup')
 SAVE_DEBUG_CSV = CONFIG.get('backup', {}).get('save_debug_csv', False)
 
 # --- CONSTANTS ---
 CSV_URL = f"https://bearblog.dev/{BEARBLOG_USERNAME}/dashboard/settings/?export=true"
-REQUEST_TIMEOUT = 15
-MAX_IMAGE_SIZE = 10_000_000  # 10MB limit
-MAX_CSV_SIZE = 50_000_000  # 50MB limit for CSV
-MAX_WORKERS = 5  # Concurrent image downloads
 
 # Paths
 BASE_DIR = Path(BACKUP_FOLDER)
 TRACKING_FILE = Path("bots/backup_bot/processed_articles.txt")
+LOCK_FILE = Path("bots/backup_bot/processed_articles.txt.lock")
 TEMP_CSV = Path("temp_export.csv")
-DEBUG_CSV = Path("bots/backup_bot/last_export.csv")  # Keep a copy for debugging
+DEBUG_CSV = Path("bots/backup_bot/last_export.csv")
 
-# Environment variables
+# Create session with connection pooling
+session = create_session('bearblog-backup/2.0')
+
+
 def normalize_cookie(cookie: Optional[str]) -> Optional[str]:
     """
     Normalize cookie format to ensure it has the sessionid= prefix.
@@ -67,71 +76,14 @@ def normalize_cookie(cookie: Optional[str]) -> Optional[str]:
     # Otherwise, add the sessionid= prefix
     return f'sessionid={cookie}'
 
+
 COOKIE = normalize_cookie(os.getenv("BEAR_COOKIE"))
 
 
-class AuthenticationError(Exception):
-    """Raised when authentication fails."""
-    pass
-
-
-class DownloadError(Exception):
-    """Raised when download fails."""
-    pass
-
-
-def clean_filename(text: str) -> str:
+def download_file_to_folder(url: str, folder: Path) -> bool:
     """
-    Creates a safe filename for files and folders.
-    Removes special characters and emojis.
-    """
-    # Remove emojis and special characters
-    text = re.sub(r'[^\w\s-]', '', str(text)).strip().lower()
-    # Replace spaces and multiple hyphens with single hyphen
-    text = re.sub(r'[-\s]+', '-', text)
-    # Limit length
-    return text[:100]
-
-
-def is_safe_url(url: str) -> bool:
-    """Validate that the URL uses a safe protocol (HTTP/HTTPS)."""
-    try:
-        parsed = urlparse(url)
-        if parsed.scheme not in ('http', 'https'):
-            logger.warning(f"Rejected URL with unsafe protocol: {parsed.scheme}")
-            return False
-        return True
-    except Exception as e:
-        logger.warning(f"Error validating URL: {e}")
-        return False
-
-
-def sanitize_filename(filename: str) -> str:
-    """
-    Sanitize filename to prevent path traversal attacks.
-    Returns only the basename without any directory components.
-    """
-    # Remove any path components
-    filename = os.path.basename(filename)
-
-    # Remove dangerous characters
-    filename = re.sub(r'[^a-zA-Z0-9._-]', '_', filename)
-
-    # Prevent hidden files
-    if filename.startswith('.'):
-        filename = '_' + filename
-
-    # Ensure filename is not empty and has reasonable length
-    if not filename or len(filename) > 255:
-        filename = 'image.webp'
-
-    return filename
-
-
-def download_file(url: str, folder: Path) -> bool:
-    """
-    Downloads a file without changing URLs in the markdown.
-    Includes security checks and proper error handling.
+    Downloads a file to a specific folder.
+    Uses the shared session with connection pooling.
     """
     try:
         # Security: Validate URL
@@ -151,8 +103,8 @@ def download_file(url: str, folder: Path) -> bool:
 
         logger.info(f"Downloading image: {file_name}")
 
-        # Download with streaming and size limit
-        response = requests.get(url, stream=True, timeout=REQUEST_TIMEOUT)
+        # Download with streaming and size limit using session
+        response = session.get(url, stream=True, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
 
         # Check content length
@@ -175,11 +127,8 @@ def download_file(url: str, folder: Path) -> bool:
         logger.info(f"Successfully downloaded: {file_name}")
         return True
 
-    except requests.exceptions.RequestException as e:
-        logger.warning(f"HTTP error downloading {url}: {e}")
-        return False
     except Exception as e:
-        logger.error(f"Unexpected error downloading {url}: {e}")
+        logger.warning(f"Error downloading {url}: {e}")
         return False
 
 
@@ -188,7 +137,6 @@ def get_content_hash(row: pd.Series) -> str:
     Creates a secure hash from content AND relevant metadata to detect changes.
     This ensures that changes to meta_image, title, published_date, etc. trigger re-processing.
     """
-    # Include content and all metadata that should trigger a re-download
     hash_parts = [
         str(row.get('content', '')),
         str(row.get('meta image', '')),
@@ -202,27 +150,28 @@ def get_content_hash(row: pd.Series) -> str:
 
 
 def load_processed_articles() -> Dict[str, str]:
-    """Loads the list of already processed articles (UID + Hash)."""
+    """Loads the list of already processed articles (UID + Hash) with file locking."""
     processed = {}
 
     if not TRACKING_FILE.exists():
         return processed
 
     try:
-        with open(TRACKING_FILE, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
+        with FileLock(LOCK_FILE):
+            with open(TRACKING_FILE, 'r', encoding='utf-8') as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
 
-                if '|' not in line:
-                    logger.warning(f"Invalid format in tracking file at line {line_num}")
-                    continue
+                    if '|' not in line:
+                        logger.warning(f"Invalid format in tracking file at line {line_num}")
+                        continue
 
-                parts = line.split('|', 1)
-                if len(parts) == 2:
-                    uid, content_hash = parts
-                    processed[uid] = content_hash
+                    parts = line.split('|', 1)
+                    if len(parts) == 2:
+                        uid, content_hash = parts
+                        processed[uid] = content_hash
 
         return processed
 
@@ -232,26 +181,37 @@ def load_processed_articles() -> Dict[str, str]:
 
 
 def save_processed_article(uid: str, content_hash: str) -> None:
-    """Saves a processed article to the tracking file."""
+    """Saves a processed article to the tracking file with file locking."""
     try:
         TRACKING_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(TRACKING_FILE, 'a', encoding='utf-8') as f:
-            f.write(f"{uid}|{content_hash}\n")
+        with FileLock(LOCK_FILE):
+            with open(TRACKING_FILE, 'a', encoding='utf-8') as f:
+                f.write(f"{uid}|{content_hash}\n")
     except Exception as e:
         logger.error(f"Error saving processed article: {e}")
         raise
 
 
 def update_processed_article(uid: str, content_hash: str) -> None:
-    """Updates an existing entry in the tracking file."""
+    """Updates an existing entry in the tracking file with file locking."""
     try:
-        processed = load_processed_articles()
-        processed[uid] = content_hash
+        with FileLock(LOCK_FILE):
+            processed = {}
+            if TRACKING_FILE.exists():
+                with open(TRACKING_FILE, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if '|' in line:
+                            parts = line.split('|', 1)
+                            if len(parts) == 2:
+                                processed[parts[0]] = parts[1]
 
-        TRACKING_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(TRACKING_FILE, 'w', encoding='utf-8') as f:
-            for article_uid, hash_val in processed.items():
-                f.write(f"{article_uid}|{hash_val}\n")
+            processed[uid] = content_hash
+
+            TRACKING_FILE.parent.mkdir(parents=True, exist_ok=True)
+            with open(TRACKING_FILE, 'w', encoding='utf-8') as f:
+                for article_uid, hash_val in processed.items():
+                    f.write(f"{article_uid}|{hash_val}\n")
 
     except Exception as e:
         logger.error(f"Error updating processed article: {e}")
@@ -309,7 +269,7 @@ def download_images_concurrent(content: str, post_dir: Path) -> None:
     # Download concurrently
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_to_url = {
-            executor.submit(download_file, url, post_dir): url
+            executor.submit(download_file_to_folder, url, post_dir): url
             for url in img_urls
         }
 
@@ -333,12 +293,11 @@ def download_csv() -> Path:
         )
 
     logger.info(f"Fetching CSV from: {CSV_URL}")
-    logger.debug(f"Cookie format: {'sessionid=***' if COOKIE.startswith('sessionid=') else 'Missing sessionid= prefix'}")
 
     headers = {"Cookie": COOKIE}
 
     try:
-        response = requests.get(
+        response = session.get(
             CSV_URL,
             headers=headers,
             timeout=REQUEST_TIMEOUT,
@@ -373,8 +332,7 @@ def download_csv() -> Path:
                 f"CSV file too large: {content_length} bytes (max: {MAX_CSV_SIZE})"
             )
 
-        # Download using a single iterator to avoid stream issues
-        # Collect all chunks first, then validate and write
+        # Download and validate
         chunks = []
         total_size = 0
         html_checked = False
@@ -400,7 +358,7 @@ def download_csv() -> Path:
         with open(TEMP_CSV, 'wb') as f:
             f.write(content)
 
-        # Optionally save a debug copy (WARNING: contains unpublished drafts!)
+        # Optionally save a debug copy
         if SAVE_DEBUG_CSV:
             DEBUG_CSV.parent.mkdir(parents=True, exist_ok=True)
             with open(DEBUG_CSV, 'wb') as f:
@@ -408,7 +366,7 @@ def download_csv() -> Path:
             logger.info(f"Debug CSV saved to: {DEBUG_CSV}")
             logger.warning("Note: Debug CSV contains ALL articles including unpublished drafts!")
         else:
-            # Remove old debug CSV if it exists (cleanup from previous runs)
+            # Remove old debug CSV if it exists
             if DEBUG_CSV.exists():
                 DEBUG_CSV.unlink()
                 logger.info("Removed old debug CSV (save_debug_csv is disabled)")
@@ -424,31 +382,30 @@ def download_csv() -> Path:
         logger.info(f"CSV downloaded successfully ({total_size} bytes)")
         return TEMP_CSV
 
-    except requests.exceptions.RequestException as e:
+    except (AuthenticationError, DownloadError):
+        raise
+    except Exception as e:
         raise DownloadError(f"Network error downloading CSV: {e}")
 
 
 def parse_csv(csv_path: Path) -> pd.DataFrame:
     """Parse CSV file with robust error handling."""
     try:
-        # First, check if file is empty or too small
         file_size = csv_path.stat().st_size
         if file_size == 0:
             raise ValueError("CSV file is empty (0 bytes)")
         if file_size < 100:
             raise ValueError(f"CSV file suspiciously small ({file_size} bytes)")
 
-        # Use C engine which handles multiline quoted fields correctly
-        # The Python engine has issues with multiline content in quoted fields
         df = pd.read_csv(
             csv_path,
-            encoding='utf-8-sig',  # Remove BOM (Byte Order Mark) if present
-            engine='c',  # C engine handles multiline quoted fields better
-            sep=',',  # BearBlog uses comma-separated CSV
-            quotechar='"',  # Standard quote character
-            doublequote=True,  # Handle double quotes
-            skipinitialspace=True,  # Skip spaces after delimiter
-            on_bad_lines='warn'  # Warn about bad lines instead of failing
+            encoding='utf-8-sig',
+            engine='c',
+            sep=',',
+            quotechar='"',
+            doublequote=True,
+            skipinitialspace=True,
+            on_bad_lines='warn'
         )
 
         logger.info(f"Parsed CSV: {len(df)} articles found")
@@ -461,7 +418,6 @@ def parse_csv(csv_path: Path) -> pd.DataFrame:
         if missing_columns:
             raise ValueError(f"CSV missing required columns: {missing_columns}")
 
-        # Check if DataFrame is empty
         if len(df) == 0:
             raise ValueError("CSV file contains no data rows")
 
@@ -497,7 +453,6 @@ def process_article(row: pd.Series, df: pd.DataFrame, processed_articles: Dict[s
 
         # Extract data
         uid = str(row['uid'])
-        title = str(row['title'])
         content = str(row['content'])
         pub_date_str = str(row['published date'])
         slug = str(row['slug'])
@@ -638,17 +593,14 @@ def main() -> None:
         logger.error("     - Value: Just paste the sessionid value")
         logger.error("     - (You can use either 'sessionid=VALUE' or just 'VALUE')")
         logger.error("=" * 70)
-        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
     except DownloadError as e:
         logger.error(f"Download error: {e}")
-        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        # Note: Don't cleanup - we want to keep the debug CSV for inspection
         raise
 
 
