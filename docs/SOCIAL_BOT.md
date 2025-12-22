@@ -147,6 +147,17 @@ Configure these in **Settings → Secrets → Actions**:
 ### Efficiency
 - Tracks posted articles to prevent duplicates
 
+### Automatic Issue for Unmatched Articles
+When a new article doesn't match any posting configuration, the bot:
+1. Generates a detailed matching report showing:
+   - Article info (title, link, published date)
+   - Detected RSS tags from the feed
+   - Each config checked and why it didn't match
+2. Creates a GitHub Issue with the full report
+3. Suggests possible actions to fix the configuration
+
+This helps diagnose why articles aren't being posted and makes it easier to adjust the filter rules.
+
 ---
 
 ## Triggering
