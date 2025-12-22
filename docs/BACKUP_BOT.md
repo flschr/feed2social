@@ -17,8 +17,9 @@ The Backup Bot works **independently from the Social Bot's feed configuration**.
 2. Parses each published article
 3. Creates a folder per post: `YYYY-MM-DD-slug/`
 4. Saves content as `index.md` with YAML frontmatter
-5. Downloads all images referenced in the post
-6. Tracks processed articles to avoid duplicates
+5. Downloads all images referenced in the post (all common formats)
+6. Optionally downloads linked files (PDFs, etc.) if enabled
+7. Tracks processed articles to avoid duplicates
 
 ---
 
@@ -33,12 +34,38 @@ blog:
 backup:
   folder: "blog-backup"
   save_debug_csv: false
+
+  # Optional: Download linked files (PDFs, documents, etc.)
+  linked_files:
+    enabled: false
+    allowed_extensions:
+      - pdf
+      - epub
+      - zip
+    allowed_domains:
+      - "bear-images.sfo2.cdn.digitaloceanspaces.com"
 ```
 
 | Setting | Description | Default |
 |---------|-------------|---------|
 | `backup.folder` | Directory for blog post backups | `blog-backup` |
 | `backup.save_debug_csv` | Save the raw CSV export for debugging | `false` |
+| `backup.linked_files.enabled` | Download linked files (PDFs, etc.) | `false` |
+| `backup.linked_files.allowed_extensions` | File extensions to download | `[]` |
+| `backup.linked_files.allowed_domains` | Domains to download from | `[]` |
+
+### Linked Files Backup
+
+By default, the Backup Bot downloads **images** in all common formats (jpg, png, webp, gif, etc.) automatically.
+
+If you want to also backup **linked files** like PDFs, EPUBs, or ZIPs, you can enable the `linked_files` feature:
+
+1. Set `enabled: true`
+2. Add allowed file extensions to `allowed_extensions`
+3. Add trusted domains to `allowed_domains` (for security)
+
+> [!NOTE]
+> When you enable this feature, the bot will also check **existing articles** for linked files on the next run. Files that already exist won't be downloaded again.
 
 > [!CAUTION]
 > **About `save_debug_csv`**: The CSV export from Bear Blog contains **all articles, including unpublished drafts**. If you enable this option, draft content will be saved to `bots/backup_bot/last_export.csv` and committed to your repository. Only enable this for debugging purposes, and be aware that in a public repository, your unpublished drafts would be visible to anyone (including in git history).
