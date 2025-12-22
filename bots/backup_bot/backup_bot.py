@@ -22,6 +22,7 @@ from shared import (
     DownloadError,
     REQUEST_TIMEOUT,
     MAX_IMAGE_SIZE,
+    MAX_CSV_SIZE,
     MAX_WORKERS,
     is_safe_url,
     sanitize_filename,
@@ -29,7 +30,6 @@ from shared import (
     create_session,
     FileLock,
 )
-from shared.constants import MAX_CSV_SIZE
 
 # Setup Logging
 logging.basicConfig(
