@@ -18,7 +18,9 @@ first_published_at: "2025-10-18T22:00:00+00:00"
 
 Ich habe gestern über dieses Zitat nachgedacht, das meine Frau scheinbar noch nicht kannte, aber sofort mochte:
 
-> Am Ende wird alles gut. Und wenn es noch nicht gut ist, dann ist es noch nicht das Ende.<cite>Fernando Sabino</cite>
+> Am Ende wird alles gut. Und wenn es noch nicht gut ist, dann ist es noch nicht das Ende.
+>
+> Fernando Sabino
 
 Ich habe es hier einmal [korrekt](https://quoteinvestigator.com/2023/01/01/everything-ok/) dem ~~portugiesischen~~ brasilianischen Autor [Fernando Sabino](https://de.wikipedia.org/wiki/Fernando_Sabino) zugeordnet. Und nein, es stammt weder von Oscar Wilde noch von John Lennon. [Eure Wandtattoos](https://www.google.com/search?tbm=isch&q=wandtattoo+am+ende+wird+alles+gut) sind Fake News!
 
