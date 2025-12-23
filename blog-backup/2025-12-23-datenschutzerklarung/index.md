@@ -16,6 +16,8 @@ class_name: ""
 first_published_at: "2025-12-23T08:13:00+00:00"
 ---
 
+# Datenschutzerklärung
+
 Der Schutz Ihrer Daten ist mir wichtig. Sie können dieses Blog besuchen, ohne persönliche Angaben machen zu müssen. Es werden keine Cookies gesetzt und keine personenbezogenen Daten gespeichert.
 
 ## Bereitstellung der Website
