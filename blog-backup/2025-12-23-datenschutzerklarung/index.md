@@ -22,30 +22,22 @@ Der Schutz Ihrer Daten ist mir wichtig. Sie können dieses Blog besuchen, ohne p
 
 ## Bereitstellung der Website
 
-Dieses Blog wird über [Bear Blog](https://bearblog.dev) bereitgestellt. Beim Aufruf der Seiten werden durch den Anbieter automatisch technische Informationen erfasst, darunter IP-Adresse, Datum, Uhrzeit und Browsertyp. Diese Daten sind erforderlich, um den stabilen und sicheren Betrieb der Website zu gewährleisten.
+Dieses Blog wird über [Bear Blog](https://bearblog.dev) betrieben. Dabei werden technisch notwendige Daten (Server-Logs wie IP-Adresse, Datum/Uhrzeit) sowie anonyme Besuchsstatistiken erfasst. Es findet keine Identifizierung einzelner Besucher oder eine geräteübergreifende Nachverfolgung statt.
 
-**Diensteanbieter:** Manton Reece, Austin, Texas, USA  
-**Datenschutzerklärung:** [micro.blog/privacy](https://micro.blog/privacy)  
-**Rechtsgrundlage:** Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)
-
-## Besucherstatistik
-
-Zur anonymisierten Analyse der Seitenaufrufe wird die Open-Source-Software [Goatcounter](https://www.goatcounter.com/) eingesetzt. Dabei werden weder Cookies gesetzt noch personenbezogene Daten gespeichert. Ebenso erfolgt keine geräteübergreifende Nachverfolgung oder Profilbildung. GoatCounter speichert lediglich anonyme Zählwerte und technische Daten, z. B. Gerätetyp, Betriebssystem, grobe Region auf Basis gekürzter IP-Adresse. Eine Identifizierung einzelner Personen ist nicht möglich.
-
-**Diensteanbieter:** Martin Tournoij, Amsterdam, Niederlande
-**Datenschutzerklärung:** [goatcounter.com/help/privacy](https://www.goatcounter.com/help/privacy)
-**Rechtsgrundlage:** Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)
+- **Diensteanbieter:** Herman Martinus, 269 Odendaal St, Meyerspark, Pretoria, 0184, Südafrika  
+- **Datenschutzerklärung:** [Bear Blog Privacy Policy](https://docs.bearblog.dev/privacy-policy/)  
+- **Rechtsgrundlage:** Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)
 
 ## Eingebettete Inhalte
 
 An einigen Stellen können Inhalte externer Dienste (u.a. YouTube, Google Maps, Komoot, ARTE, u.a.) eingebunden sein, etwa Videos, Karten oder andere interaktive Medien. Diese Inhalte werden nicht automatisch geladen. Stattdessen erscheint ein Hinweis, der Sie über den jeweiligen Anbieter informiert. Erst nach Ihrer aktiven Zustimmung wird die Verbindung hergestellt und Daten können übertragen werden.
 
-**Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)  
-**Datenübermittlung bei US-Diensten:** EU-US Data Privacy Framework
+- **Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)  
+- **Datenübermittlung bei US-Diensten:** EU-US Data Privacy Framework
 
 ## Ihre Rechte
 
-Auch wenn auf dieser Webseite keine personenbezogenen Daten gespeichert werden, haben Sie grundsätzlich das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung sowie Widerspruch gegen bestimmte Verarbeitungen, sofern im Einzelfall Daten verarbeitet werden sollten.
+Sie haben das Recht auf Auskunft, Berichtigung oder Löschung Ihrer Daten. Da ich keine personenbezogenen Nutzerprofile erstelle, liegen mir im Regelfall keine Daten vor, die ich Ihrer Person zuordnen könnte.
 
 **Verantwortlich:** René Fischer  
 **Kontakt:** [datenschutz@fischr.org](mailto:datenschutz@fischr.org)
