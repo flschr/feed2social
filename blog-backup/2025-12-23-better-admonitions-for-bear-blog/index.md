@@ -27,11 +27,11 @@ I decided to repurpose the lower-level headings inside a blockquote. This keeps 
 To use this, just add the H4, H5, or H6 headline inside your blockquote, and you are done. Below you can see, what you need to type and how it is rendered, based on the CSS you find below.
 
 ```
-> #### Important information
-> Crucial information necessary for users to succeed.
+> #### Did you know?
+> You can find more tips like this in my [archives](/blog/) or by following me on [Mastodon](https://mastodon.social/@fischr).
 ```
-> #### Important information
-> Crucial information necessary for users to succeed.
+> #### Did you know?
+> You can find more tips like this in my [archives](/blog/) or by following me on [Mastodon](https://mastodon.social/@fischr).
 
 
 ```
