@@ -29,6 +29,7 @@ Wenn Zeit und Wetter es erlauben, zieht es mich raus in die Natur. Ich [fotograf
 Meine kulinarischen Entdeckungen habe ich angefangen in Listen für [gutes Essen](https://maps.app.goo.gl/LuC8gFzC2tx2z4h5A) und [leckeres Eis](https://maps.app.goo.gl/2XHANH7dPYTrpcQS9) festzuhalten.
 
 > Perfektion ist nicht dann erreicht, wenn es nichts mehr hinzuzufügen gibt, sondern wenn man nichts mehr wegnehmen kann.
+>
 >– Antoine de Saint-Exupéry
 
 Online findet man mich auf [Mastodon](https://mastodon.social/@fischr), seltener auf [Bluesky](https://bsky.app/profile/fischr.org). Ansonsten bin ich auch noch auf [GitHub](https://github.com/flschr), [OpenStreetMap](https://www.openstreetmap.org/user/fischr) und [Komoot](https://www.komoot.com/de-de/user/848543125284) unterwegs.
