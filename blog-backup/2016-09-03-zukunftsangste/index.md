@@ -22,7 +22,7 @@ Die fortwährende Innovationskraft des Menschen hat die Welt mehrfach komplett v
 
 Ich bin ein grundsätzlich aufgeschlossener und fortschrittlich denkender Mensch. Die permanente Veränderung auf der Suche nach der Vollkommenheit, ist aus meiner Perspektive ein erstrebenswerter Zustand, obgleich man ja eigentlich nie an irgendeinem Ziel ankommen kann. Das ist meine persönliche, vielleicht etwas zu philosophische Beschreibung. Die Wikipedia fasst es etwas nüchterner zusammen:
 
-> Geek bezeichnet heute allgemein eine Person, die sich durch großes Interesse an wissenschaftlichen oder fiktionalen Themen auszeichnet, die üblicherweise elektronischer oder phantastischer Natur sind.<cite>– Wikipedia: Geek</cite>
+>Geek bezeichnet heute allgemein eine Person, die sich durch großes Interesse an wissenschaftlichen oder fiktionalen Themen auszeichnet, die üblicherweise elektronischer oder phantastischer Natur sind.
 
 Ich bin ein Geek und ich bin leider krank. Ich leide an gleich zwei Phobien: Der Mechanophobie, also der Angst vor Maschinen. Und der Cyberphobie, der Angst vor Computern.
 
@@ -30,13 +30,15 @@ Ich habe natürlich keine Angst vor einem Kühlschrank oder einer Brotschneidema
 
 Damit bin ich nicht allein. So warnten der Physik-Nobelpreisträger [Frank Wilczek](https://de.wikipedia.org/wiki/Frank_Wilczek), der Kosmologe [Max Tegmark](https://de.wikipedia.org/wiki/Max_Tegmark), der Computerwissenschaftler [Stuart Jonathan Russell](https://de.wikipedia.org/wiki/Stuart_Jonathan_Russell) und der Physiker [Stephen Hawking](https://de.wikipedia.org/wiki/Stephen_Hawking) bereits 2014 sehr eindringlich im [Independent](https://www.independent.co.uk/news/science/stephen-hawking-transcendence-looks-at-the-implications-of-artificial-intelligence-but-are-we-taking-ai-seriously-enough-9313474.html):
 
-> Eine künstliche Intelligenz erfolgreich in Gang zu setzen, wäre das größte Ereignis der Menschheitsgeschichte. Bedauerlicher Weise könnte es auch das letzte sein, so lange wir nicht lernen, wie man die damit verbundenen Risiken vermeidet.
+>Eine künstliche Intelligenz erfolgreich in Gang zu setzen, wäre das größte Ereignis der Menschheitsgeschichte. Bedauerlicher Weise könnte es auch das letzte sein, so lange wir nicht lernen, wie man die damit verbundenen Risiken vermeidet.
 
 Nicht mehr und nicht weniger als die aktuelle wissenschaftliche Weltelite hebt den Zeigefinger und fordert einen bewussten Umgang mit der Artificial Intelligence. Einer Technologie, die, befragt man ihre Befürworter, unvorstellbare Potentiale für die Menschheit bereithält: Heilung von heute als unheilbar geltenden Krankheiten, Wohlstand, Glück und natürlich Unsterblichkeit.
 
 Keine Frage, das klingt erstrebenswert. Aber wie kann verhindert werden, dass sich eine solche [Superintelligenz](https://de.wikipedia.org/wiki/Superintelligenz) nicht gegen ihre Erschaffer wendet? Indem wir ihr Werte vermitteln, wie [Nick Bostrom](https://de.wikipedia.org/wiki/Nick_Bostrom) es [fordert](https://www.heise.de/hintergrund/Unsere-letzte-Erfindung-3152050.html)?
 
-> Eine Superintelligenz wäre gottähnlich. Ob Zorn oder Liebe sie antreibt, liegt an uns, die wir sie erschaffen werden. Wie alle Eltern müssen wir unser Kind mit Werten ausstatten, die im besten Interesse der Menschheit liegen. Im Grunde bringen wir einem durch uns erschaffenen Gott bei, dass er uns gut behandeln soll.<cite>– Nick Bostrom</cite>
+>Eine Superintelligenz wäre gottähnlich. Ob Zorn oder Liebe sie antreibt, liegt an uns, die wir sie erschaffen werden. Wie alle Eltern müssen wir unser Kind mit Werten ausstatten, die im besten Interesse der Menschheit liegen. Im Grunde bringen wir einem durch uns erschaffenen Gott bei, dass er uns gut behandeln soll.
+>
+>Nick Bostrom
 
 Nur, wie soll sich eine Spezies, die dem Nachbarn nicht das Schwarze unter den Fingernägeln gönnt, auf gemeinsame Werte einigen? Und was, wenn irgendwelche Schurken oder Staaten in der Hoffnung auf die ultimative Superwaffe eine solche Superintelligenz entfesseln? Es wäre wohl das Ende der Menschheit.
 
