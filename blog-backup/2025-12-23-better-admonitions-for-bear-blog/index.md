@@ -35,11 +35,11 @@ To use this, just add the H4, H5, or H6 headline inside your blockquote, and you
 
 
 ```
-> ##### Heads up: Spoilers ahead!
+> ##### Spoilers ahead!
 > The following section discusses the ending of the book in great detail. Read at your own risk.
 ```
 
-> ##### Heads up: Spoilers ahead!
+> ##### Spoilers ahead!
 > The following section discusses the ending of the book in great detail. Read at your own risk.
 
 ```
