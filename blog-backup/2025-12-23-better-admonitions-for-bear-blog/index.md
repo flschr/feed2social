@@ -45,13 +45,12 @@ To use this, just add the H4, H5, or H6 headline inside your blockquote, and you
 
 
 ```
-> ###### THIS IS REALLY DANGEROUS!
-> Negative potential consequences of an action.
+> ###### Wait, before you copy-paste...
+> Always make sure to backup your current CSS theme before applying new styles, just in case!
 ```
 
-
-> ###### THIS IS REALLY DANGEROUS!
-> Negative potential consequences of an action.
+> ###### Wait, before you copy-paste...
+> Always make sure to backup your current CSS theme before applying new styles, just in case!
 
 ## The CSS
 
