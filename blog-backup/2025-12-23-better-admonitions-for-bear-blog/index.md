@@ -16,7 +16,7 @@ class_name: ""
 first_published_at: "2025-12-23T07:11:00+00:00"
 ---
 
-I was looking around for some nice admonitions to add to my Bear Blog theme. I eventually found [some](https://thecommabandit.bearblog.dev/cohost-infoboxes/) and decided to use them. However, copy-pasting the somewhat complex div structure felt painful. It was impossible to add Markdown links to these boxes without resorting to raw HTML, which even more felt like tag-soup. To make my life at least a little bit easier, I added buttons to the Markdown toolbar I [released earlier](/a-markdown-toolbar-for-lazy-bear-blog-users/), to at least not need to copy-paste them anymore.
+I was looking around for some nice admonitions to add to my Bear Blog theme. I eventually found [some](https://thecommabandit.bearblog.dev/cohost-infoboxes/) and decided to use them. However, copy-pasting the somewhat complex div structure felt painful. It was impossible to add Markdown links to these boxes without resorting to raw HTML, which even more felt like having tag-soup. To make my life at least a little bit easier, I added buttons to the Markdown toolbar I [released earlier](/a-markdown-toolbar-for-lazy-bear-blog-users/), to at least not need to copy-paste them anymore.
 
 By accident, I later found out, [how GitHub handles Admonitions](https://github.com/orgs/community/discussions/16925) using simple Markdown. Unfortunately, this doesn't work in Bear Blog, but I very much liked the idea to have callout-boxes only by typing Markdown. So, I hacked a way around it.
 
