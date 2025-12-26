@@ -55,6 +55,10 @@ I wasn't trying to reinvent the wheel, just make it spin a lot smoother for peop
 
 The best thing is, you decide which buttons you see. The new settings panel allows you to configure your individual toolbar and toggle buttons and settings on and off.
 
+
+> #### How the AI Alt-Text works
+>  This feature uses the OpenAI gpt-4o-mini model to analyze your images via their URL. It’s designed to be fast, privacy-conscious (data is only sent when you click the button), and extremely cost-efficient, generating descriptions for about 1,000 images costs roughly $1.00. For more details, read the [documentation](https://github.com/flschr/bearblog-plugins?tab=readme-ov-file#ai-alt-text-feature-optional) on GitHub.
+
 ## Get this toolbar for your Bear Blog
 
 To use this toolbar, simply add the code below to *Dashboard > Settings > Footer content* in your Bear Blog.
@@ -69,15 +73,6 @@ And the really cool thing is, this works in any web browser, whether you’re on
 > The [original toolbar](https://github.com/flschr/bearblog-plugins/blob/main/bear/markdown-toolbar_basic.js) isn't going anywhere and will stay available for those who want to keep their current setup. To enjoy the new features, you'll need to manually switch to the new version provided in this article.
 
 ---
-
-## ... information
-
-The AI integration uses the [OpenAI Vision API](https://platform.openai.com/docs/guides/images-vision) (specifically the gpt-4o-mini model) to analyze images. It is designed to be fast, privacy-conscious, and extremely cheap.
-
-- When you click the AI button, only the URL of the selected image is sent to OpenAI. The AI then "looks" at the image and returns a descriptive alt-text.
-- Using the gpt-4o-mini model is incredibly cost-efficient. Generating an alt-text for one image costs approximately $0.0012 (or even less). This means you can describe nearly 1,000 images for about $1.00.
-- You will need your own OpenAI API Key. You only pay for what you actually use, with no monthly subscription required.
-- For privacy reasons, the plugin only sends the image URL to OpenAI when you actively click the button. No data is sent automatically in the background.
 
 The source code of the Markdown toolbar is available in this [GitHub repository](https://github.com/flschr/bearblog-plugins).
 
