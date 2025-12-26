@@ -10,7 +10,7 @@ make_discoverable: "True"
 is_page: "False"
 canonical_url: ""
 meta_description: ""
-meta_image: "https://bear-images.sfo2.cdn.digitaloceanspaces.com/fischr/1766177197947.webp"
+meta_image: "https://bear-images.sfo2.cdn.digitaloceanspaces.com/fischr/001.webp"
 lang: ""
 class_name: ""
 first_published_at: "2025-12-19T22:01:00+00:00"
@@ -18,6 +18,8 @@ first_published_at: "2025-12-19T22:01:00+00:00"
 
 > #### Version 2 is here!
 > I’ve completely rebuilt it from the ground up, turning a simple set of buttons into a professional Markdown editor for Bear Blog. If you’re using the old version, I highly recommend switching to the new script link below to unlock the full potential.
+
+![A graphic showcasing a digital document editor on a computer screen, with a vibrant turquoise background. The text features the title "Bear Blog - Markdown Plugin Walkthrough," emphasizing smarter and easier writing, along with highlights of the content.](https://bear-images.sfo2.cdn.digitaloceanspaces.com/fischr/001.webp)
 
 There is one thing that I really miss in Bear Blog, and this is a more powerful editor. Don't get me wrong, I love Markdown, but I’m also lazy. I definitely don't want to type out links and formatting codes manually every single time, like a monkey.
 
