@@ -58,7 +58,7 @@ I wasn't trying to reinvent the wheel, just make it spin a lot smoother for peop
 The best thing is, you decide which buttons you see. The new settings panel allows you to configure your individual toolbar and toggle buttons and settings on and off.
 
 
-> #### How the AI-powered alt-text generation works
+> #### How the ALT-text generation works
 >  This feature uses the OpenAI gpt-4o-mini model to analyze your images via their URL. It’s designed to be fast, privacy-conscious (data is only sent when you click the button), and extremely cost-efficient, generating descriptions for about 1,000 images costs roughly $1.00. For more details, read the [documentation](https://github.com/flschr/bearblog-plugins/blob/main/README.md#ai-alt-text-feature-optional) on GitHub.
 
 ## Get this toolbar for your Bear Blog
