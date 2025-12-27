@@ -3,7 +3,7 @@ uid: itdLCzdJVfjQmEYDDABx
 title: Weihnachtsmenü 2025
 slug: weihnachtsmenu-2025
 alias: ""
-published_date: "2025-12-27T21:41:54.528622+00:00"
+published_date: "2025-12-27T21:41:00+00:00"
 all_tags: "[\"blog\", \"leckerwars\"]"
 publish: "True"
 make_discoverable: "True"
@@ -28,9 +28,7 @@ Hier ist das Protokoll inklusive Links und Tipps für nächstes Jahr.
 
 Nach vielen Jahren Bratwurst mit Sauerkraut und Kartoffelbrei war es Zeit für einen Tapetenwechsel. Deshalb gab es dieses Jahr Schweinelende in Pilzrahmsauce aus dem Ofen. Die Zubereitung habe ich aus [zwei](https://www.malteskitchen.de/schweinelendchen-pilzrahmsauce/) [Rezepten](https://www.lecker.de/einfaches-weihnachtsessen-ofen-schweinefilet-in-cremiger-sosse-79301.html) improvisiert. Dazu gab es selbstgemachte Spätzle nach diesem [Rezept](https://emmikochteinfach.de/omas-spaetzle-rezept-spaetzleteig-selber-machen/) und gedünsteten Brokkoli.
 
-> ##### Hinweise für nächstes Jahr
-> - Schweinefleisch ruhig noch mehr, vor allem mit Salz würzen. Wenn man denkt, es ist zu viel, ist es ausreichend.
-> - Spätzle mit sehr sprudeligen Mineralwasser waren ein Gamechanger.
+Nächstes Jahr das Schweinefleisch ruhig noch mehr, vor allem mit Salz würzen. Wenn man denkt, es ist zu viel, ist es vermutlich ausreichend. Spätzle mit sehr sprudeligen Mineralwasser waren ein Gamechanger.
 
 ## 1. Weihnachtsfeiertag
 
