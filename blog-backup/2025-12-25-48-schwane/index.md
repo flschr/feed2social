@@ -18,4 +18,4 @@ first_published_at: "2025-12-25T21:43:00+00:00"
 
 ![Schwarz-weiß-Fotografie aus der Zuschauerperspektive auf eine Theaterbühne, auf der ein Ballettensemble in hellen Tutus den Schlussapplaus von „Schwanensee“ vor einer Waldkulisse entgegennimmt.](https://bear-images.sfo2.cdn.digitaloceanspaces.com/fischr/img_8660-edited.webp)
 
-[Schwanensee](https://de.wikipedia.org/wiki/Schwanensee) mit [48 Schwänen](https://www.muenchen-online.de/ballett-muenchen/schwanensee-im-prinzregententheater/) war vermutlich das beste Weihnachtsgeschenk dieses Jahr. Hätte ja nicht gedacht das mich Ballett so sehr unterhält. 
+[Schwanensee](https://de.wikipedia.org/wiki/Schwanensee) mit [48 Schwänen](https://www.muenchen-online.de/ballett-muenchen/schwanensee-im-prinzregententheater/) war vermutlich das beste Weihnachtsgeschenk dieses Jahr. Hätte ja nicht gedacht, dass mich Ballett so sehr unterhält. 
